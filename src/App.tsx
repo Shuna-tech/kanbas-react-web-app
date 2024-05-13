@@ -2,7 +2,7 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 import Labs from "./Labs";
-import {HashRouter, Route, Routes, Navigate} from "react-router-dom"
+import { HashRouter, Route, Routes, Navigate } from "react-router-dom";
 import Kanbas from './Kanbas';
 
 function App() {
