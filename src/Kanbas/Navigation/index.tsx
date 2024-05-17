@@ -15,6 +15,7 @@ export default function KanbasNavigation(){
             <li><a id="wd-studio-link" href="#/Kanbas/Studio">Studio</a></li>
             <li><a id="wd-commons-link" href="#/Kanbas/Commons">Commons</a></li>
             <li><a id="wd-help-link" href="#/Kanbas/Help">Help</a></li>
+            <li><a id="wd-labs-link" href="#/Labs">Labs</a></li>
         </ul>
     );
 }
