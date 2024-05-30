@@ -1,46 +1,60 @@
-import { MdOutlineUnpublished } from "react-icons/md";
-import GreenCheckmark from "../Modules/GreenCheckmark";
-import { MdOutlinePublishedWithChanges } from "react-icons/md";
-import { LuImport } from "react-icons/lu";
-import { AiOutlineImport } from "react-icons/ai";
+import { MdDoNotDisturbAlt } from "react-icons/md";
+import { FaCheckCircle } from "react-icons/fa";
+import { BiImport } from "react-icons/bi";
+import { LiaFileImportSolid } from "react-icons/lia";
 import { IoHomeOutline } from "react-icons/io5";
-import { MdOutlineGridView } from "react-icons/md";
+import { MdGridView } from "react-icons/md";
 import { TfiAnnouncement } from "react-icons/tfi";
-import { TbBrandGoogleAnalytics } from "react-icons/tb";
+import { SiGoogleanalytics } from "react-icons/si";
 import { IoIosNotificationsOutline } from "react-icons/io";
 
-export default function CourseStatus(){
-    return(
-        <div id="course-status">
-            <h2>Course Status</h2>
-            <button id="wd-unpublish-btn" className="btn btn-secondary me-1">
-                <MdOutlineUnpublished className="fs-5 me-1"/>
-                Unpublish</button>
-            <button id="wd-publish-btn" className="btn bg-success text-white">
-                <MdOutlinePublishedWithChanges className="fs-5 me-1"/>
-                Publish</button><br/>
-            <br/>
-            <button id="wd-import-content-btn" className="btn btn-secondary mb-1" style={{width: '300px', textAlign: 'left'}}>
-                <LuImport className="fs-5 me-1"/>
-                Import Existing Content</button><br/>
-            <button id="wd-import-commons-btn" className="btn btn-secondary mb-1" style={{width: '300px', textAlign: 'left'}}>
-                <AiOutlineImport className="fs-5 me-1"/>
-                Import from Commons</button><br/>
-            <button id="wd-choose-home-btn" className="btn btn-secondary mb-1" style={{width: '300px', textAlign: 'left'}}>
-                <IoHomeOutline className="fs-5 me-1"/>
-                Choose Home Page</button><br/>
-            <button id="wd-course-stream-btn" className="btn btn-secondary mb-1" style={{width: '300px', textAlign: 'left'}}>
-                <MdOutlineGridView className="fs-5 me-1"/>
-                View Course Stream</button><br/>
-            <button id="wd-new-announcements-btn" className="btn btn-secondary mb-1" style={{width: '300px', textAlign: 'left'}}>
-                <TfiAnnouncement className="fs-5 me-1"/>
-                New Announcement</button><br/>
-            <button id="wd-new-analytics-btn" className="btn btn-secondary mb-1" style={{width: '300px', textAlign: 'left'}}>
-                <TbBrandGoogleAnalytics className="fs-5 me-1"/>
-                New Analytics</button><br/>
-            <button id="wd-course-notification-btn" className="btn btn-secondary mb-1" style={{width: '300px', textAlign: 'left'}}>
-                <IoIosNotificationsOutline className="fs-5 me-1"/>
-                View Course Notification</button><br/>
+export default function CourseStatus() {
+  return (
+    <div id="wd-course-status" style={{ width: "300px" }}>
+      <h2>Course Status</h2>
+      <div className="d-flex">
+        <div className="w-50 pe-1">
+          <button className="btn btn-lg btn-secondary w-100 text-nowrap ">
+            <MdDoNotDisturbAlt className="me-2 fs-5" />
+            Unpublish
+          </button>
         </div>
-    );
-}
+        <div className="w-50">
+          <button className="btn btn-lg btn-success w-100">
+            <FaCheckCircle className="me-2 fs-5" />
+            Publish
+          </button>
+        </div>
+      </div>
+      <br />
+      <button className="btn btn-lg btn-secondary w-100 mt-1 text-start">
+        <BiImport className="me-2 fs-5" />
+        Import Existing Content
+      </button>
+      <button className="btn btn-lg btn-secondary w-100 mt-1 text-start">
+        <LiaFileImportSolid className="me-2 fs-5" />
+        Import from Commons
+      </button>
+      {/* Complete the rest of the buttons */}
+      <button className="btn btn-lg btn-secondary w-100 mt-1 text-start">
+        <IoHomeOutline className="me-2 fs-5" />
+        Choose Home Page
+      </button>
+      <button className="btn btn-lg btn-secondary w-100 mt-1 text-start">
+        <MdGridView className="me-2 fs-5" />
+        View Course Screen
+      </button>
+      <button className="btn btn-lg btn-secondary w-100 mt-1 text-start">
+        <TfiAnnouncement className="me-2 fs-5" />
+        New Announcements
+      </button>
+      <button className="btn btn-lg btn-secondary w-100 mt-1 text-start">
+        <SiGoogleanalytics className="me-2 fs-5" />
+        New Analytics
+      </button>
+      <button className="btn btn-lg btn-secondary w-100 mt-1 text-start">
+        <IoIosNotificationsOutline className="me-2 fs-5" />
+        View Course Notifications
+      </button>
+    </div>
+);}

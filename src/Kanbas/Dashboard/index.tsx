@@ -20,7 +20,7 @@ export default function Dashboard(){
                                     style={{whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>
                                     Full Stack software developer
                                 </p>
-                                <a href="#/Kanbas/Courses/1234/Home" className="btn btn-primary">Go</a>
+                                <a href="#/Kanbas/Courses/1234/Home" className="btn btn-primary mt-auto">Go</a>
                             </div>
                         </div>
                     </div>
