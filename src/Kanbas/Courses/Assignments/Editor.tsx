@@ -31,16 +31,16 @@ export default function AssignmentEditor() {
         <div>
           <div className="row mb-3">
             <label htmlFor="wd-points" 
-              className="col-sm-2 col-form-label" style={{textAlign: "right"}}>Points</label>
-            <div className="col-sm-10">
+              className="col-2 col-form-label" style={{textAlign: "right"}}>Points</label>
+            <div className="col-10">
               <input id="wd-points" className="form-control" value={100} />
             </div>
           </div>
 
           <div className="row mb-3">
             <label htmlFor="wd-group"
-              className="col-sm-2 col-form-label" style={{textAlign: "right"}}>Assignment Group</label>
-            <div className="col-sm-10">
+              className="col-2 col-form-label" style={{textAlign: "right"}}>Assignment Group</label>
+            <div className="col-10">
               <select id="wd-group" className="form-select">
                 <option value="ASSIGNMENTS">Assignments</option>
                 <option value="PROJECTS">Projects</option>
@@ -52,8 +52,8 @@ export default function AssignmentEditor() {
 
           <div className="row mb-3">
             <label htmlFor="wd-display-grade-as" 
-              className="col-sm-2 col-form-label" style={{textAlign: "right"}}>Display Grade as</label>
-            <div className="col-sm-10">
+              className="col-2 col-form-label" style={{textAlign: "right"}}>Display Grade as</label>
+            <div className="col-10">
               <select id="wd-display-grade-as" className="form-select">
                 <option value="PERCENTAGE">Percentage</option>
                 <option value="NUMBER">Number</option>
@@ -63,11 +63,10 @@ export default function AssignmentEditor() {
 
           <div className="row mb-3">
             <label htmlFor="wd-submission-type"
-              className="col-form-label col-sm-2" style={{textAlign: "right"}}>Submission Type</label>
-            <div className="col-sm-10">
+              className="col-form-label col-2" style={{textAlign: "right"}}>Submission Type</label>
+            <div className="col-10">
               <div className="card">
                 <div className="card-body">
-
                   <select id="wd-submission-type" className="form-select mb-3">
                     <option value="ONLINE">Online</option>
                     <option value="OFFLINE">Offline</option>
@@ -103,9 +102,10 @@ export default function AssignmentEditor() {
             </div> 
           </div>
         </div>
+
         <div className="row mb-5">
-          <label className="col-form-label col-sm-2" style={{textAlign: "right"}}>Assign</label>
-          <div className="col-sm-10">
+          <label className="col-form-label col-2" style={{textAlign: "right"}}>Assign</label>
+          <div className="col-10">
             <div className="card">
               <div className="card-body">
                 <div className="mb-3">
@@ -115,14 +115,14 @@ export default function AssignmentEditor() {
                 <div className="mb-3">
                   <label htmlFor="wd-due-date" className="form-label fw-bold">Due</label>
                   <div className="input-group">
-                    <input type="datetime-local" id="wd-due-date" className="form-control" />
+                    <input type="datetime-local" id="wd-due-date" className="form-control" value={"2024-05-13T23:59"}/>
                   </div>
                 </div>
                 <div className="row">
                   <div className="col-md-6 mb-3">
                     <label htmlFor="wd-available-from" className="form-label fw-bold">Available from</label>
                     <div className="input-group">
-                      <input type="datetime-local" id="wd-available-from" className="form-control" />
+                      <input type="datetime-local" id="wd-available-from" className="form-control" value={"2024-05-06T12:00"}/>
                     </div>
                   </div>
                   <div className="col-md-6 mb-3">

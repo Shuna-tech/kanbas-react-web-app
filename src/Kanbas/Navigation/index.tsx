@@ -10,9 +10,6 @@ import { CiSettings } from "react-icons/ci";
 import { useLocation } from "react-router";
 import { MdAccountCircle } from "react-icons/md";
 
-import Courses from "../Courses";
-
-
 export default function KanbasNavigation(){
     const { pathname } = useLocation();
     const isActive = (path: string) => pathname.includes(path)? 'bg-white text-danger' : 'bg-black text-white';
@@ -24,7 +21,7 @@ export default function KanbasNavigation(){
             </a>
             <a id="wd-account-link" href="#/Kanbas/Account"
                 className={`list-group-item text-center border-0 ${isActive('/Kanbas/Account')}`}>
-                <MdAccountCircle className="fs-1 text-white" /><br />
+                <MdAccountCircle className="fs-1" /><br />
                 Account
             </a>
             <a id="wd-dashboard-link" href="#/Kanbas/Dashboard"

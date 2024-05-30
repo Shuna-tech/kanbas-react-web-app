@@ -2,7 +2,7 @@ import GradesControl from "./GradesControl";
 import { FaSearch } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa";
 import { CiFilter } from "react-icons/ci";
-
+import { LiaFileExportSolid } from "react-icons/lia";
 
 export default function Grades(){
     return(
@@ -30,11 +30,12 @@ export default function Grades(){
                 <CiFilter className="fs-5 me-1"/>
                 Apply Filters
             </button>
-            <div>
-                <table className="table table-bordered">
+            <div className="table-responsive">
+                <table className="table table-bordered table-striped">
                     <thead>
-                        <tr className="table-secondary text-center">
-                            <th>Student Name</th><th>A1 SETUP<br/><span>Out of 100</span></th>
+                        <tr className="text-center">
+                            <th>Student Name</th>
+                            <th>A1 SETUP<br/><span>Out of 100</span></th>
                             <th>A2 HTML<br/><span>Out of 100</span></th>
                             <th>A3 CSS<br/><span>Out of 100</span></th>
                             <th>A4 BOOTSTRAP<br/><span>Out of 100</span></th>
@@ -44,26 +45,32 @@ export default function Grades(){
                         <tr className="text-center">
                             <td className="text-danger">Jane Adams</td><td>100%</td><td>96.67%</td><td>92.18%</td><td>66.22%</td>
                         </tr>
-                        <tr className="table-secondary text-center">
+                        <tr className="text-center">
                             <td className="text-danger">Christina Allen</td><td>100%</td><td>100%</td><td>100%</td><td>100%</td>
                         </tr>
                         <tr className="text-center">
                             <td className="text-danger">Samreen Ansari</td><td>100%</td><td>100%</td><td>100%</td><td>100%</td>
                         </tr>
-                        <tr className="table-secondary text-center">
+                        <tr className="text-center">
                             <td className="text-danger">Han Bao</td><td>100%</td><td>100%</td>
-                            <td><input type="text" className="form-control text-center" defaultValue="100%"/></td>
+                            <td>
+                                <div className="input-group">
+                                    <input type="text" className="form-control text-center me-1" defaultValue="100%"/>
+                                    <span className="fs-5"><LiaFileExportSolid /></span>
+                                </div>
+                            </td>
                             <td>98.99%</td>
                         </tr>
                         <tr className="text-center">
-                            <td className="text-danger">Samreen Ansari</td><td>100%</td><td>96.67%</td><td>98.37%</td><td>100%</td>
+                            <td className="text-danger">Mahi Sai Srinivas Bobbili</td><td>100%</td><td>96.67%</td><td>98.37%</td><td>100%</td>
                         </tr>
-                        <tr className="table-secondary text-center">
+                        <tr className="text-center">
                             <td className="text-danger">Siran Cao</td><td>100%</td><td>100%</td><td>100%</td><td>100%</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
+
     );
 }
