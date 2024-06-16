@@ -3,10 +3,17 @@ import { FaSearch } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa";
 import { CiFilter } from "react-icons/ci";
 import { LiaFileExportSolid } from "react-icons/lia";
+import { useParams } from "react-router";
+import * as db from "../../Database";
 
 export default function Grades(){
+    const {cid} = useParams()
+    const enrollments = db.enrollments
+    const assignments = db.assignments
+    const grades = db.grades;
+
     return(
-        <div id="wd-grades" className="ms-5 container">
+        <div id="wd-grades" className="ms-3 container">
             <GradesControl/><br /><br /><br />
             <div className="row">
                 <div className="col-sm-6 mb-3">
@@ -36,39 +43,30 @@ export default function Grades(){
                     <table className="table table-bordered table-striped">
                         <thead>
                             <tr className="text-center">
-                                <th style={{width:"20%"}}>Student Name</th>
-                                <th className="fw-light" style={{width:"20%"}}>A1 SETUP<br/><span>Out of 100</span></th>
-                                <th className="fw-light" style={{width:"20%"}}>A2 HTML<br/><span>Out of 100</span></th>
-                                <th className="fw-light" style={{width:"20%"}}>A3 CSS<br/><span>Out of 100</span></th>
-                                <th className="fw-light" style={{width:"20%"}}>A4 BOOTSTRAP<br/><span>Out of 100</span></th>
+                                 <th>Student Name</th>
+                                {assignments
+                                    .filter((assignment: any) => assignment.course == cid)
+                                    .map((assignment) => 
+                                        <th className="fw-light">{assignment._id} {assignment.title}<br/><span>out of 100</span></th>
+                                )}
                             </tr>
                         </thead>
                         <tbody>
-                            <tr className="text-center">
-                                <td className="text-danger">Jane Adams</td><td>100%</td><td>96.67%</td><td>92.18%</td><td>66.22%</td>
-                            </tr>
-                            <tr className="text-center">
-                                <td className="text-danger">Christina Allen</td><td>100%</td><td>100%</td><td>100%</td><td>100%</td>
-                            </tr>
-                            <tr className="text-center">
-                                <td className="text-danger">Samreen Ansari</td><td>100%</td><td>100%</td><td>100%</td><td>100%</td>
-                            </tr>
-                            <tr className="text-center">
-                                <td className="text-danger">Han Bao</td><td>100%</td><td>100%</td>
-                                <td>
-                                    <div className="input-group">
-                                        <input type="text" className="form-control text-center me-1" defaultValue="100%"/>
-                                        <span className="fs-5"><LiaFileExportSolid /></span>
-                                    </div>
-                                </td>
-                                <td>98.99%</td>
-                            </tr>
-                            <tr className="text-center">
-                                <td className="text-danger">Mahi Sai Srinivas Bobbili</td><td>100%</td><td>96.67%</td><td>98.37%</td><td>100%</td>
-                            </tr>
-                            <tr className="text-center">
-                                <td className="text-danger">Siran Cao</td><td>100%</td><td>100%</td><td>100%</td><td>100%</td>
-                            </tr>
+                            {enrollments
+                                .filter((enrollment: any) => enrollment.course == cid)
+                                .map((enrollment) => (
+                                    <tr className="text-center">
+                                        <td className="text-danger">{enrollment.user}</td>
+                                        {assignments
+                                            .filter((assignment: any) => assignment.course == cid)
+                                            .map((assignment) => {
+                                                const grade = grades.find((grade) => grade.student == enrollment.user && grade.assignment == assignment._id);
+                                                return <td>{grade ? grade.grade : 'N/A'}</td>;
+                                            })
+                                        }
+                                    </tr>
+                                ))
+                                }
                         </tbody>
                     </table>
                 </div>
