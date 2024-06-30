@@ -9,9 +9,8 @@ import { useParams, Link } from "react-router-dom";
 import * as db from "../../Database";
 
 export default function Assignments() {
-  const {cid} = useParams();
-  const assignments = db.assignments;
-  
+  const assignments = db.assignments
+  const {cid} = useParams()
   return (
     <div id="wd-assignments" className="ms-5">
       <AssignmentsControls /><br /><br />
