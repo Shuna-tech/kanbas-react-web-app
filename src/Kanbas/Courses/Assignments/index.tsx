@@ -8,8 +8,9 @@ import { BsPlusLg } from "react-icons/bs";
 import { useParams, Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import React, { useState } from 'react';
-import { deleteAssignment } from "./reducer";
+import React, { useState, useEffect } from 'react';
+import { setAssignments, deleteAssignment } from "./reducer";
+import * as client from "./client";
 
 export default function Assignments() {
   const assignments = useSelector((state: any) => state.assignments.assignments);
@@ -19,12 +20,20 @@ export default function Assignments() {
   const [showModal, setShowModal] = useState(false);
   const [currentAssignmentId, setCurrentAssignmentId] = useState(null);
 
-  const handleDelete = (assignmentId: any) => {
+  const handleDelete = async(assignmentId: any) => {
+    await client.deleteAssignment(assignmentId);
     dispatch(deleteAssignment(assignmentId))
 
     setShowModal(false);
     setCurrentAssignmentId(null);
   };
+  const fetchAssignments = async () => {
+    const assignments = await client.findAssignmentsForCourse(cid as string);
+    dispatch(setAssignments(assignments));
+  };
+  useEffect(() => {
+    fetchAssignments();
+  }, []);
 
   return (
     <div id="wd-assignments" className="ms-5">

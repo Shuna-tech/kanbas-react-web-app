@@ -3,21 +3,44 @@ import { BsGripVertical } from "react-icons/bs";
 import LessonControlButtons from "./LessonControlButtons";
 import ModuleControlButtons from "./ModuleControlButtons";
 import { useParams } from "react-router";
-import React, {useState} from "react";
-import { addModule, editModule, updateModule, deleteModule } from "./reducer";
+import React, {useState, useEffect} from "react";
+import { setModules, addModule, editModule, updateModule, deleteModule } from "./reducer";
 import { useSelector, useDispatch } from "react-redux";
+import * as client from "./client";
 
 export default function Modules() {
   const {cid} = useParams();
   const [moduleName, setModuleName] = useState("");
   const { modules } = useSelector((state: any) => state.modules);
   const dispatch = useDispatch();
+  const saveModule = async (module: any) => {
+    const status = await client.updateModule(module);
+    dispatch(updateModule(module));
+  };
+
+  const removeModule = async (moduleId: string) => {
+    await client.deleteModule(moduleId);
+    dispatch(deleteModule(moduleId));
+  };
+
+  const createModule = async (module: any) => {
+    const newModule = await client.createModule(cid as string, module);
+    dispatch(addModule(newModule));
+  };
+
+  const fetchModules = async () => {
+    const modules = await client.findModulesForCourse(cid as string);
+    dispatch(setModules(modules));
+  };
+  useEffect(() => {
+    fetchModules();
+  }, []);
 
   return (
     <div id="wd-modules">
       <ModulesControls moduleName={moduleName} setModuleName={setModuleName} 
         addModule={() => {
-          dispatch(addModule({ name: moduleName, course: cid }));
+          createModule({ name: moduleName, course: cid });
           setModuleName("");
         }}/><br /><br />
       <ul id="wd-modules" className="list-group rounded-0">
@@ -30,21 +53,14 @@ export default function Modules() {
                 {!module.editing && module.name}
                 { module.editing && (
                   <input className="form-control w-50 d-inline-block"
-                         onChange={(e) => 
-                          dispatch(
-                            updateModule({ ...module, name: e.target.value }))
-                          }
+                         onChange={(e) => saveModule({ ...module, name: e.target.value })}
                          onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            dispatch(updateModule({ ...module, editing: false }));
-                           }
+                          if (e.key === "Enter") {saveModule({ ...module, editing: false });} 
                           }}
                           value={module.name}/>
                 )}
                 <ModuleControlButtons moduleId={module._id} 
-                  deleteModule={(moduleId) => {
-                    dispatch(deleteModule(moduleId));
-                  }}
+                  deleteModule={(moduleId) => {removeModule(moduleId);}}
                   editModule={(moduleId) => dispatch(editModule(moduleId))} />
               </div>
               {module.lessons && (

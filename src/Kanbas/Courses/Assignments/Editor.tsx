@@ -3,10 +3,10 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import React, { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addAssignment, updateAssignment } from "./reducer";
-
+import * as client from "./client";
 
 export default function AssignmentEditor() {
-  const {cid, id} = useParams();
+  const { cid, id } = useParams<{ cid: string; id?: string }>();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const {assignments} = useSelector((state: any) => state.assignments);
@@ -14,6 +14,7 @@ export default function AssignmentEditor() {
   const descriptionRef = useRef<HTMLDivElement>(null);
 
   const [assignmentDetails, setAssignmentDetails] = useState({
+    _id: "",
     title: "",
     description: "",
     points: "",
@@ -27,6 +28,7 @@ export default function AssignmentEditor() {
       const existingAssignment = assignments.find((a: any) => a._id === id);
       if (existingAssignment) {
         setAssignmentDetails({
+          _id: existingAssignment._id,
           title: existingAssignment.title,
           description: existingAssignment.description,
           points: existingAssignment.points,
@@ -46,14 +48,25 @@ export default function AssignmentEditor() {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async() => {
     const updatedDetails = {
       ...assignmentDetails,
-      description: descriptionRef.current?.innerHTML
+      description: descriptionRef.current?.innerHTML || ""
     };
-    const action = isNew ? addAssignment({...updatedDetails, course: cid}) : updateAssignment({...updatedDetails, _id: id});
-    dispatch(action);
-    navigate(`/Kanbas/Courses/${cid}/Assignments`);
+    try {
+      let resultData;
+      if (isNew) {
+        resultData = await client.createAssignment(cid as string, updatedDetails);
+        dispatch(addAssignment(resultData));  
+      } else {
+        resultData = await client.updateAssignment(updatedDetails);
+        
+        dispatch(updateAssignment(resultData));  
+      }
+      navigate(`/Kanbas/Courses/${cid}/Assignments`);
+    } catch (error) {
+      console.error("Error saving assignment:", error);
+    }
   };
 
   const handleCancel = () => {
