@@ -6,7 +6,6 @@ import "./style.css";
 import { useState, useEffect } from "react";
 import store from "./store";
 import { Provider } from "react-redux";
-// import * as db from "./Database";
 import * as client from "./Courses/client";
 import Account from "./Account"
 import ProtectedRoute from "./ProtectedRoute";

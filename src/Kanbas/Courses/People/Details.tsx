@@ -135,8 +135,8 @@ export default function PeopleDetails({ fetchUsers }:
         </span> 
         <br />
 
-      <b>Login ID:</b>        <span className="wd-login-id">      {user.loginId}      </span> <br />
-      <b>Section:</b>         <span className="wd-section">       {user.section}      </span> <br />
+      <b>Login ID:</b>        <span className="wd-login-id">      {user.loginId}      </span> <br /><br />
+      <b>Section:</b>         <span className="wd-section">       {user.section}      </span> <br /><br />
       <b>Total Activity:</b>  <span className="wd-total-activity">{user.totalActivity}</span>
       <br /><br />
       <button onClick={() => deleteUser(uid)} className="btn btn-danger float-end wd-delete" > Delete </button>

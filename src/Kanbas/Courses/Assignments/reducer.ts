@@ -11,18 +11,8 @@ const assignmentsSlice = createSlice({
       state.assignments = action.payload;
     },
     addAssignment: (state, { payload: assignment }) => {
-      // const lastDigit = assignment.course[assignment.course.length - 1];
-      // const baseIdNumber = parseInt(lastDigit) * 100;
-      // const relevantAssignments = state.assignments.filter(a => parseInt(a._id.substring(1)) >= baseIdNumber && parseInt(a._id.substring(1)) < baseIdNumber + 100);
-      
-      // const highestId = relevantAssignments.reduce((maxId, item) => {
-      //   const numericPart = parseInt(item._id.substring(1)); // Assumes IDs are in the format "A###"
-      //   return numericPart > maxId ? numericPart : maxId;
-      // }, baseIdNumber); 
-      // const newId = "A" + (highestId + 1);
       const newAssignment: any = {
-        _id: new Date().getTime().toString(),
-        // _id: newId,
+        _id: assignment._id,
         title: assignment.title,
         course: assignment.course,
         available_date: assignment.available_date,
@@ -38,7 +28,7 @@ const assignmentsSlice = createSlice({
     },
     updateAssignment: (state, { payload: assignment }) => {
       state.assignments = state.assignments.map((a: any) =>
-        a._id === assignment._id ? assignment : a //creating a new object instead of modifying the existing state
+        a._id === assignment._id ? assignment : a
       ) as any;
     },
     editAssignment: (state, { payload: assignmentId }) => {
