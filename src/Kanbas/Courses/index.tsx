@@ -9,15 +9,16 @@ import Grades from "./Grades";
 import PeopleTable from "./People/Table";
 import Quizzes from "./Quizzes";
 import DetailsEditor from "./Quizzes/QuizEditor";
+import QuestionsEditor from "./Quizzes/QuestionsEditor";
 
-export default function Courses({courses}:{courses: any[]}) {
-  const {cid} = useParams();
+export default function Courses({ courses }: { courses: any[] }) {
+  const { cid } = useParams();
   const course = courses.find((course) => course._id === cid)
-  const {pathname} = useLocation();
+  const { pathname } = useLocation();
   return (
     <div id="wd-courses">
       <h2 className="text-danger"><FaAlignJustify className="me-4 fs-4 mb-1" />
-      {course && course.name} &gt; {pathname.split("/")[4]}
+        {course && course.name} &gt; {pathname.split("/")[4]}
       </h2>
       <hr />
       <div className="d-flex">
@@ -30,21 +31,23 @@ export default function Courses({courses}:{courses: any[]}) {
             <Route path="Home" element={<Home />} />
             <Route path="Modules" element={<Modules />} />
             <Route path="Assignments"
-                    element={<Assignments />} />
+              element={<Assignments />} />
             <Route path="Assignments/:id"
-                    element={<AssignmentEditor />} />
+              element={<AssignmentEditor />} />
             <Route path="Grades"
-                    element={<Grades />} /> 
+              element={<Grades />} />
             <Route path="People" element={<PeopleTable />} />
             <Route path="People/:uid" element={<PeopleTable />} />
             <Route path="Quizzes" element={<Quizzes />} />
-            <Route path="Quizzes/:qid" element={<DetailsEditor />} />    
-                         
+            <Route path="Quizzes/:qid" element={<DetailsEditor />} />
+            <Route path="Quizzes/:qid/questions" element={<QuestionsEditor />} />
+
           </Routes>
         </div>
       </div>
     </div>
-);}
+  );
+}
 
 
 
