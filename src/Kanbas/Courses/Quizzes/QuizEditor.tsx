@@ -3,9 +3,14 @@ import { FaEllipsisVertical } from "react-icons/fa6";
 import { FaCalendarAlt } from "react-icons/fa";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { FaRegTrashAlt } from "react-icons/fa";
+import { FaEdit } from "react-icons/fa";
+import { Link, useParams } from 'react-router-dom';
+
 
 
 export default function QuizEditor() {
+  const { qid } = useParams();
   const [activeTab, setActiveTab] = useState('details');
   const [quiz, setQuiz] = useState({
     title: "",
@@ -191,24 +196,30 @@ export default function QuizEditor() {
 
       {activeTab === 'questions' && (
         <div>
-          <div className="question-item" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div className='float-end'>
+            <span style={{ marginRight: '8px' }}>Points</span>
+            <span style={{ marginRight: '10px' }}>0</span>
+          </div><br />
+          <div className="question-item" style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center' }} >
               <span style={{ marginRight: '10px' }}>1</span>
               <span style={{ marginRight: '10px' }}>q1_name</span>
-              <span>Multiple choice question</span>
+              <select style={{ marginRight: '10px' }} defaultValue="multiple_choice">
+                <option value="true_false">True/false question</option>
+                <option value="multiple_choice">Multiple choice question</option>
+                <option value="fill_in_blanks">Fill in multiple blanks question</option>
+              </select>
             </div>
-            <div>
-              <button className="btn btn-light" style={{ marginRight: '5px' }}>
-                <img src="path_to_edit_icon" alt="Edit" style={{ width: '20px' }} />
-              </button>
-              <button className="btn btn-light">
-                <img src="path_to_delete_icon" alt="Delete" style={{ width: '20px' }} />
-              </button>
+            <div style={{ display: 'flex', alignItems: 'center', marginLeft: '30px' }}>
+              <Link to={`/Kanbas/Courses/:cid/Quizzes/new/questions`}>
+                <FaEdit className='fs-5 me-3' />
+              </Link>
+              <FaRegTrashAlt className='fs-5 me-3' />
             </div>
-          </div>
+          </div><br /><br />
 
-          <div>
-            <button className="btn btn-primary">+ New Question</button>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <button className="btn btn-primary" >+ New Question</button>
           </div><br />
           <div>
             <button className="btn btn-secondary me-3">Cancel</button>
@@ -216,11 +227,6 @@ export default function QuizEditor() {
           </div>
         </div>
       )}
-
-
-
-
-
     </div >
   );
 }
