@@ -8,9 +8,9 @@ import { FaEdit } from "react-icons/fa";
 import { Link, useParams } from 'react-router-dom';
 
 
-
-export default function QuizEditor() {
-  const { qid } = useParams();
+export default function DetailsEditor() {
+  const { cid } = useParams();
+  const [questionType, setQuestionType] = useState('multiple_choice');
   const [activeTab, setActiveTab] = useState('details');
   const [quiz, setQuiz] = useState({
     title: "",
@@ -23,8 +23,29 @@ export default function QuizEditor() {
     multipleAttempts: false,
     dueDate: "",
     availableFrom: "",
-    untilDate: ""
+    untilDate: "",
+    questions: [
+      {
+        questionTitle: "How much is 2 + 2?",
+        questionType: "Multiple Choice",
+        points: 4,
+        question: "How much is 2 + 2?"
+      }
+    ],
   });
+  const getLinkPath = () => {
+    const courseId = cid;
+    switch (questionType) {
+      case 'true_false':
+        return `/Kanbas/Courses/${courseId}/Quizzes/new/questions/truefalse`;
+      case 'multiple_choice':
+        return `/Kanbas/Courses/${courseId}/Quizzes/new/questions/multiplechoice`;
+      case 'fill_in_blanks':
+        return `/Kanbas/Courses/${courseId}/Quizzes/new/questions/fillinblanks`;
+      default:
+        return '#'; // Fallback if no type is matched
+    }
+  };
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
     setQuiz(prevQuiz => ({
@@ -32,7 +53,6 @@ export default function QuizEditor() {
       [name]: type === 'checkbox' ? checked : value
     }));
   }
-
   const handleDescriptionChange = (value: any) => {
     setQuiz(prevQuiz => ({
       ...prevQuiz,
@@ -204,20 +224,23 @@ export default function QuizEditor() {
             <div style={{ display: 'flex', alignItems: 'center' }} >
               <span style={{ marginRight: '10px' }}>1</span>
               <span style={{ marginRight: '10px' }}>q1_name</span>
-              <select style={{ marginRight: '10px' }} defaultValue="multiple_choice">
+
+              <select
+                style={{ marginRight: '10px' }} defaultValue="multiple_choice"
+                value={questionType}
+                onChange={(e) => setQuestionType(e.target.value)}>
                 <option value="true_false">True/false question</option>
                 <option value="multiple_choice">Multiple choice question</option>
                 <option value="fill_in_blanks">Fill in multiple blanks question</option>
               </select>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', marginLeft: '30px' }}>
-              <Link to={`/Kanbas/Courses/:cid/Quizzes/new/questions`}>
+              <Link to={getLinkPath()}>
                 <FaEdit className='fs-5 me-3' />
               </Link>
               <FaRegTrashAlt className='fs-5 me-3' />
             </div>
           </div><br /><br />
-
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <button className="btn btn-primary" >+ New Question</button>
           </div><br />

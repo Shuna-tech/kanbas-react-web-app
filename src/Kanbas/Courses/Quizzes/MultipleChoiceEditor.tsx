@@ -5,9 +5,9 @@ import { EditorState } from 'draft-js';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { FaTrashAlt } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa";
+import RichTextEditor from "./RichTextEditor";
 
-
-export default function QuizEditor() {
+export default function MultipleChoiceEditor() {
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [answers, setAnswers] = useState([
     { id: 1, text: "4", isCorrect: false },
@@ -50,35 +50,7 @@ export default function QuizEditor() {
 
   return (
     <div className="question-form-container" style={{ padding: "20px", maxWidth: "600px", border: '1px solid #ccc', marginLeft: "200px", marginTop: "20px" }}>
-      <div className="form-group" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ marginRight: '20px' }}>
-          <label>Title: </label>
-          <input type="text" className="form-control" placeholder="Enter title" />
-        </div>
-        <div style={{ marginRight: '20px' }}>
-          <label>Question Type: </label>
-          <select className="form-control">
-            <option>Multiple Choice</option>
-            <option>True/False</option>
-            <option>Fill in Blanks</option>
-          </select>
-        </div>
-        <div>
-          <label>Points: </label>
-          <input type="number" defaultValue={4} className="form-control" />
-        </div>
-      </div><br />
-
-      <div className="form-group">
-        <label>Enter your question:</label>
-        <Editor
-          editorState={editorState}
-          wrapperClassName="demo-wrapper"
-          editorClassName="demo-editor"
-          onEditorStateChange={handleEditorChange}
-        />
-      </div>
-
+      <RichTextEditor />
       {answers.map(answer => (
         <div key={answer.id} className="answer" style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
           <input
@@ -101,7 +73,7 @@ export default function QuizEditor() {
       ))}
       <div onClick={addAnswer} className="text-danger float-end">+ Add Another Answer</div><br /><br />
       <button className="btn me-3 btn-secondary">Cancel</button>
-      <button className="btn btn-success">Update Question</button>
+      <button className="btn btn-danger">Update Question</button>
     </div>
   );
 
