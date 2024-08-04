@@ -13,6 +13,7 @@ import { setQuizzes, deleteQuiz, updateQuiz } from "./reducer";
 import * as client from "./client";
 // TODO: Add quiz list and quiz details screen
 // Can refer to Assignments/index.tsx
+//
 export default function Quizzes() {
   const quizzes = useSelector((state: any) => state.quizzes.quizzes);
   const currentUser = useSelector((state: any) => state.account.currentUser); // Get current user
