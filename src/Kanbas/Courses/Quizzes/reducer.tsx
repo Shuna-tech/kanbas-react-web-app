@@ -15,13 +15,12 @@ const quizzesSlice = createSlice({
         title: quiz.title,
         dueDate: quiz.dueDate,
         points: quiz.points,
-        questions: []
+        questions: [],
       };
       state.quizzes = [...state.quizzes, newQuiz] as any;
     },
     deleteQuiz: (state, { payload: quizId }) => {
-      state.quizzes = state.quizzes.filter(
-        (q: any) => q._id !== quizId);
+      state.quizzes = state.quizzes.filter((q: any) => q._id !== quizId);
     },
     updateQuiz: (state, { payload: quiz }) => {
       state.quizzes = state.quizzes.map((q: any) =>

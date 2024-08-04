@@ -9,7 +9,7 @@ const store = configureStore({
     modules: modulesReducer,
     assignments: assignmentsReducer,
     account: accountReducer,
-    quizzes: quizzesReducer
+    quizzes: quizzesReducer,
   },
 });
 export default store;
