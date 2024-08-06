@@ -23,6 +23,19 @@ export default function Quizzes() {
   const [showModal, setShowModal] = useState(false);
   const [currentQuizId, setCurrentQuizId] = useState(null);
 
+  const formatDate = (isoString: string) => {
+    const date = new Date(isoString);
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    };
+    return date.toLocaleString("en-US", options);
+  };
+
   const handleDelete = async (quizId: any) => {
     await client.deleteQuiz(quizId);
     dispatch(deleteQuiz(quizId));
@@ -33,14 +46,26 @@ export default function Quizzes() {
   };
 
   const handlePublish = async (quizId: any, action: string) => {
-    await client.publishQuiz(quizId);
-    const updatedQuiz = quizzes.find((quiz: any) => quiz._id === quizId);
-    updatedQuiz.published = action === "publish";
-    dispatch(updateQuiz(updatedQuiz));
+    try {
+      const updatedQuiz = quizzes.find((quiz: any) => quiz._id === quizId);
+      if (!updatedQuiz) return;
+      const newQuiz = {
+        ...updatedQuiz,
+        published: action === "publish",
+      };
+      await client.updateQuiz(newQuiz);
+      const updatedQuizzes = quizzes.map((quiz: any) =>
+        quiz._id === quizId ? newQuiz : quiz
+      );
+      dispatch(setQuizzes(updatedQuizzes));
+    } catch (error) {
+      console.error("Error publishing quiz:", error);
+    }
   };
 
   const fetchQuizzes = async () => {
     const quizzes = await client.findQuizzesForCourse(cid as string);
+    console.log("Fetched quizzes:", quizzes);
     dispatch(setQuizzes(quizzes));
   };
 
@@ -50,7 +75,7 @@ export default function Quizzes() {
     const availableUntilDate = new Date(quiz.availableUntilDate);
 
     if (currentDate < availableDate) {
-      return `Not available until ${quiz.availableDate}`;
+      return `Not available until ${formatDate(quiz.availableDate)}`;
     } else if (
       currentDate >= availableDate &&
       currentDate <= availableUntilDate
@@ -62,54 +87,60 @@ export default function Quizzes() {
   };
   useEffect(() => {
     fetchQuizzes();
-  }, [cid, dispatch]);
+  }, []);
+
+  console.log("Current quizzes:", quizzes);
 
   return (
     <div id="wd-quizzes" className="ms-5">
       <QuizzesControls />
       <br />
       <br />
+      <ul id="wd-quizzes" className="list-group rounded-0">
+        <li className="wd-quiz list-group-item p-0 fs-5 border-gray">
+          <div className="wd-title p-3 ps-2 bg-secondary">
+            <IoMdArrowDropdown className="me-3 fs-3" />
+            <span className="fw-bold">Assignment Quizzes</span>
+          </div>
+        </li>
+      </ul>
       {quizzes
-        .filter((quiz: any) => quiz.course === cid)
+        .filter((quiz: any) => quiz.courseID === cid)
         .map((quiz: any) => (
           <ul
             id="wd-quiz-list"
             className="list-group rounded-0 border-left-green border-gray"
-            key={quiz._id}
           >
-            <li className="wd-quiz-list-item list-group-item p-0 fs-5 d-flex align-items-center text-nowrap">
+            <li
+              key={quiz._id}
+              className="wd-quiz-list-item list-group-item p-0 fs-5 d-flex align-items-center text-nowrap"
+            >
               <div className="ps-2">
-                <BsGripVertical className="me-2 fs-3" />
-                <FaEdit
-                  className="me-2 fs-3 text-success"
-                  onClick={() => {
-                    navigate(`/Kanbas/Courses/${cid}/Quizzes/${quiz._id}`);
-                  }}
-                />
+                <FaEdit className="me-2 fs-3 text-success" />
               </div>
               <div className="p-3 flex-grow-1">
                 <div>
                   <Link
-                    to={`/Kanbas/Courses/${cid}/Quizzes/${quiz._id}`}
+                    to={`/Kanbas/Courses/${cid}/Quizzes/${quiz._id}/details`}
                     className="text-dark fw-bold text-decoration-none"
                   >
-                    {quiz._id}
+                    {quiz.title}
                   </Link>
                 </div>
                 <div>
-                  <span className="text-danger">{quiz.title}</span>
-                  <span className="mx-2">|</span>
                   <span className="text-muted fw-bold">
                     {renderAvailability(quiz)}
                   </span>
                   <span className="mx-2">|</span>
                   <span className="text-muted fw-bold">Due </span>
-                  <span className="text-muted">{quiz.dueDate}</span>
+                  <span className="text-muted">{formatDate(quiz.dueDate)}</span>
                   <span className="mx-2">|</span>
                   <span className="text-muted">{quiz.points} pts</span>
                   <span className="mx-2">|</span>
-                  <span className="text-muted">{quiz.questions} questions</span>
-                  {currentUser.role === "STUDENT" && quiz.score && (
+                  <span className="text-muted">
+                    {quiz.questions.length} questions
+                  </span>
+                  {currentUser.role === "STUDENT" && (
                     <>
                       <span className="mx-2">|</span>
                       <span className="text-muted">Score: {quiz.score}</span>
@@ -117,9 +148,11 @@ export default function Quizzes() {
                   )}
                 </div>
               </div>
+              <div className="float-end">
+                <GreenCheckmark />
+              </div>
               {currentUser.role === "FACULTY" && (
                 <div className="float-end">
-                  <GreenCheckmark />
                   <IoEllipsisVertical
                     className="ms-2 me-3 fs-3"
                     onClick={() =>
@@ -139,12 +172,7 @@ export default function Quizzes() {
                     >
                       Edit
                     </div>
-                    <div
-                      className="btn btn-danger"
-                      onClick={() => handleDelete(quiz._id)}
-                    >
-                      Delete
-                    </div>
+                    <div onClick={() => handleDelete(quiz._id)}>Delete</div>
                     <div
                       onClick={() =>
                         handlePublish(

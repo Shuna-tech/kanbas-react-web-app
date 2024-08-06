@@ -5,19 +5,20 @@ import * as client from "./client";
 import { FaEdit } from "react-icons/fa";
 
 export default function QuizDetail() {
-  const { cid, quizId } = useParams();
+  const { cid, qid } = useParams();
   const [quiz, setQuiz] = useState<any>(null);
   const currentUser = useSelector((state: any) => state.account.currentUser);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchQuiz = async () => {
-      if (!quizId) {
+      if (!qid) {
         console.error("Quiz ID is undefined");
         return;
       }
       try {
-        const fetchedQuiz = await client.findQuizById(quizId);
+        const fetchedQuiz = await client.findQuizById(qid);
+        console.log("Fetched quiz:", fetchedQuiz);
         setQuiz(fetchedQuiz);
       } catch (error) {
         console.error("Error fetching quiz:", error);
@@ -25,7 +26,7 @@ export default function QuizDetail() {
     };
 
     fetchQuiz();
-  }, [quizId]);
+  }, [qid, cid]);
 
   if (!quiz) {
     return <div>Loading...</div>;
@@ -39,7 +40,7 @@ export default function QuizDetail() {
             <button
               className="btn btn-primary"
               onClick={() =>
-                navigate(`/Kanbas/Courses/${cid}/Quizzes/${quizId}/Preview`)
+                navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}/Preview`)
               }
             >
               Preview
@@ -47,7 +48,7 @@ export default function QuizDetail() {
             <button
               className="btn btn-secondary"
               onClick={() =>
-                navigate(`/Kanbas/Courses/${cid}/Quizzes/${quizId}/Edit`)
+                navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}/Edit`)
               }
             >
               Edit
@@ -57,7 +58,7 @@ export default function QuizDetail() {
           <button
             className="btn btn-success"
             onClick={() =>
-              navigate(`/Kanbas/Courses/${cid}/Quizzes/${quizId}/Start`)
+              navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}/Start`)
             }
           >
             Start the Quiz

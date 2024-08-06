@@ -43,7 +43,7 @@ export const publishQuiz = async (quizId: string) => {
 
 export const findQuizById = async (quizId: string) => {
   try {
-    const response = await axios.get(`${QUIZZES_API}/quizzes/${quizId}`);
+    const response = await axios.get(`${QUIZZES_API}/${quizId}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching quiz by ID:", error);
