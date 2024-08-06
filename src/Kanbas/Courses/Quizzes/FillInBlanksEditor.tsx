@@ -36,7 +36,6 @@ export default function FillInBlanksEditor() {
 
   return (
     <div className="question-form-container" style={{ padding: "20px", maxWidth: "600px", border: '1px solid #ccc', marginLeft: "200px", marginTop: "20px" }}>
-      <RichTextEditor />
       <div>
         <label>Answers:</label>
         {answers.map((answer, index) => (

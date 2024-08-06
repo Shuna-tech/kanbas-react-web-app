@@ -12,6 +12,8 @@ import DetailsEditor from "./Quizzes/DetailsEditor";
 import MultipleChoiceEditor from "./Quizzes/MultipleChoiceEditor";
 import TrueOrFalseEditor from "./Quizzes/TrueOrFalseEditor";
 import FillInBlanksEditor from "./Quizzes/FillInBlanksEditor";
+import QuestionEditor from "./Quizzes/QuestionEditor";
+import RichTextEditor from "./Quizzes/RichTextEditor";
 
 export default function Courses({ courses }: { courses: any[] }) {
   const { cid } = useParams();
@@ -42,7 +44,8 @@ export default function Courses({ courses }: { courses: any[] }) {
             <Route path="People/:uid" element={<PeopleTable />} />
             <Route path="Quizzes" element={<Quizzes />} />
             <Route path="Quizzes/:qid" element={<DetailsEditor />} />
-            <Route path="Quizzes/new/questions/multiplechoice" element={<MultipleChoiceEditor />} />
+            <Route path="Quizzes/:qid/questions/:questionId" element={<QuestionEditor />} />
+
             <Route path="Quizzes/new/questions/truefalse" element={<TrueOrFalseEditor />} />
             <Route path="Quizzes/new/questions/fillinblanks" element={<FillInBlanksEditor />} />
 
