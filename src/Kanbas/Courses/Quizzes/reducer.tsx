@@ -1,8 +1,27 @@
 import { createSlice } from "@reduxjs/toolkit";
+
+// interface Question {
+//   _id: number;
+//   questionTitle: string;
+//   question: string;
+//   questionType: string;
+//   points: number;
+// }
+
+// interface DraftQuiz {
+//   questions: Question[];
+// }
+
+// interface QuizzesState {
+//   quizzes: any[]; // Define more specifically if possible
+//   draftQuiz: DraftQuiz;
+// }
+
 const initialState = {
   quizzes: [],
-  draftQuiz: { questions: [] }
+  draftQuiz: { questions: [] } //essential for question editor, don't remove or edit
 };
+
 const quizzesSlice = createSlice({
   name: "quizzes",
   initialState,
@@ -35,7 +54,7 @@ const quizzesSlice = createSlice({
       ) as any;
     },
 
-    //Actions for managing draft quiz
+    //Actions for managing draft quiz, essential for question editor
     setDraftQuiz: (state, { payload: quiz }) => {
       state.draftQuiz = quiz;
     },

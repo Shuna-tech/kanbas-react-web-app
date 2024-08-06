@@ -54,16 +54,16 @@ export default function QuestionEditor() {
     } else {
       dispatch(updateQuiz(updateData));
     }
-    navigate(`/Kanbas/Courses/${cid}/Quizzes/new`);
+    navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}`, { state: { activeTab: 'questions' } });
+
   };
 
   useEffect(() => {
     console.log("Updated quiz questions: ", quiz.questions);
   }, [quiz.questions]);
 
-
   const handleCancel = () => {
-    navigate(`/Kanbas/Courses/${cid}/Quizzes/new`);
+    navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}`, { state: { activeTab: 'questions' } });
   };
 
   return (
