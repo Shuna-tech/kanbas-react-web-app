@@ -1,8 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
+
 const initialState = {
   quizzes: [],
-  draftQuiz: { questions: [] }
+  draftQuiz: { questions: [] } //essential for question editor, don't remove or edit
 };
+
 const quizzesSlice = createSlice({
   name: "quizzes",
   initialState,
@@ -35,7 +37,7 @@ const quizzesSlice = createSlice({
       ) as any;
     },
 
-    //Actions for managing draft quiz
+    //Actions for managing draft quiz, essential for question editor
     setDraftQuiz: (state, { payload: quiz }) => {
       state.draftQuiz = quiz;
     },

@@ -5,130 +5,122 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import {
-  setQuizzes,
-  addQuiz,
-  editQuiz,
-  updateQuiz,
-  deleteQuiz,
-} from "./reducer";
+import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
+import { addQuiz, deleteQuiz, updateQuiz, editQuiz, setQuizzes, setDraftQuiz, updateDraftQuiz, clearDraftQuiz } from "./reducer";
 import { useSelector, useDispatch } from "react-redux";
 import * as client from "./client";
+
+//TODO: to refactor the code with global state instead of local state
+interface LocationState {
+  activeTab: string;
+}
 
 export default function DetailsEditor() {
   const { cid, qid } = useParams<{ cid: string; qid?: string }>();
   const isNew = qid === "new";
   const navigate = useNavigate();
-  // const { quizzes } = useSelector((state: any) => state.quizzes);
   const dispatch = useDispatch();
+
+  const location = useLocation();
+  const state = location.state as LocationState;
+
   const [activeTab, setActiveTab] = useState("details");
   const [totalPoints, setTotalPoints] = useState(0);
 
-  const [quiz, setQuiz] = useState({
-    title: "",
-    description: "",
-    quizType: "GRADED QUIZ",
-    assignmentGroup: "ASSIGNMENTS",
-    shuffleAnswers: true,
-    timeLimit: true,
-    minutes: 20,
-    multipleAttempts: false,
-    dueDate: "2023-12-01T00:00:00.000Z",
-    availableDate: "2023-11-01T00:00:00.000Z",
-    availableUntilDate: "2023-12-31T23:59:59.999Z",
-    published: false,
-    questions: [
-      {
-        _id: 0,
-        questionTitle: "New Question",
-        questionType: "Multiple Choice",
-        points: 0,
-        question: "How much is 1 + 1?",
-      },
-    ],
-  });
+  // Check for state passed in navigation and adjust the active tab accordingly
+  useEffect(() => {
+    if (location.state?.activeTab) {
+      setActiveTab(location.state.activeTab);
+    }
+  }, [location]);
 
+  const quiz = useSelector((state: any) => state.quizzes.draftQuiz);
+
+  let counter = quiz.questions.length;
   const addNewQuestion = () => {
+    console.log("Adding new question");
     const newQuestion = {
-      _id: quiz.questions.length,
-      questionTitle: "New Question",
+      questionId: Date.now() + counter++,
+      questionTitle: 'New Question',
       question: "How much is 2 + 2?",
       questionType: "Multiple Choice",
       points: 0,
     };
-    setQuiz({
-      ...quiz,
-      questions: [...quiz.questions, newQuestion],
-    });
-  };
-
-  const deleteQuestion = (questionId: any) => {
-    console.log("question list: ", quiz.questions);
-    const updatedQuestions = quiz.questions.filter(
-      (question) => question._id !== questionId
-    );
-    setQuiz({
-      ...quiz,
-      questions: updatedQuestions,
-    });
-    console.log("quiz: ", quiz.questions);
-  };
-
-  useEffect(() => {
-    const sumPoints = quiz.questions.reduce(
-      (acc, question) => acc + question.points,
-      0
-    );
-    setTotalPoints(sumPoints);
-  }, [quiz.questions]);
-
-  //TODO: Add useEffect(isNew) to distinguish existing details and questions page from new ones
-  //Can refer to Assignments/Editor.tsx
-
-  const getLinkPath = (questionType: any) => {
-    const courseId = cid;
-    switch (questionType) {
-      case "True/False":
-        return `/Kanbas/Courses/${courseId}/Quizzes/new/questions/truefalse`;
-      case "Multiple Choice":
-        return `/Kanbas/Courses/${courseId}/Quizzes/new/questions/multiplechoice`;
-      case "Fill in Multiple Blanks":
-        return `/Kanbas/Courses/${courseId}/Quizzes/new/questions/fillinblanks`;
-      default:
-        return "#";
+    const updatedQuestions = [...quiz.questions, newQuestion];
+    if (isNew) { //当页面为new时，没有quizId,按照reducer逻辑需要quizId,无法更新页面
+      // For a new quiz, update the draft quiz state
+      console.log("Updating draft quiz with new question for a new quiz");
+      dispatch(updateDraftQuiz({
+        ...quiz,
+        questions: updatedQuestions
+      }));
+    } else {
+      // For an existing quiz, update the quiz with an ID
+      console.log("Updating existing quiz with new question");
+      if (quiz._id) {
+        dispatch(updateQuiz({
+          ...quiz,
+          questions: updatedQuestions
+        }));
+      } else {
+        console.error("quiz ID is missing, unable to update the existing quiz");
+      }
     }
   };
 
+  const deleteQuestion = (questionId: any) => {
+    const updatedQuestions = quiz.questions.filter((question: any) => question.questionId !== questionId);
+    const updatedquiz = {
+      ...quiz,
+      questions: updatedQuestions
+    };
+    if (isNew) {
+      dispatch(updateDraftQuiz(updatedquiz));
+    } else {
+      dispatch(updateQuiz(updatedquiz));
+    }
+  }
+
+  useEffect(() => {
+    console.log("Updated quiz questions: ", quiz.questions);
+  }, [quiz.questions]);
+
+
+  const handleEditQuestion = (questionId: any) => {
+    navigate(`/Kanbas/Courses/${cid}/Quizzes/new/questions/${questionId}`);
+  };
+
+
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
-    setQuiz((prevQuiz) => ({
-      ...prevQuiz,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  // update specific question title
-  const handleQuestionTitleChange = (index: any, newTitle: any) => {
-    const updatedQuestions = quiz.questions.map((question, idx) =>
-      idx === index ? { ...question, questionTitle: newTitle } : question
-    );
-    setQuiz({ ...quiz, questions: updatedQuestions });
-  };
-
-  // update specific question type
-  const handleQuestionTypeChange = (index: any, newType: any) => {
-    const updatedQuestions = quiz.questions.map((question, idx) =>
-      idx === index ? { ...question, questionType: newType } : question
-    );
-    setQuiz({ ...quiz, questions: updatedQuestions });
-  };
+    const updatedquiz = { ...quiz, [name]: type === 'checkbox' ? checked : value }
+    if (isNew) {
+      dispatch(updateDraftQuiz(updatedquiz))
+    } else {
+      dispatch(updateQuiz(updatedquiz));
+    }
+  }
 
   const handleDescriptionChange = (value: any) => {
-    setQuiz((prevQuiz) => ({
-      ...prevQuiz,
-      description: value,
-    }));
+    const updatedquiz = { ...quiz, description: value };
+    if (isNew) {
+      dispatch(updateDraftQuiz(updatedquiz))
+    } else {
+      dispatch(updateQuiz(updatedquiz));
+    }
+  };
+
+  const handleQuestionChange = (e: any, questionId: any) => {
+    const { name, value } = e.target;
+    const updatedQuestions = quiz.questions.map((question: any) =>
+      question.questionId === questionId ? { ...question, [name]: value } : question
+    );
+    const updatedquiz = { ...quiz, questions: updatedQuestions };
+    if (isNew) {
+      dispatch(updateDraftQuiz(updatedquiz))
+    } else {
+      dispatch(updateQuiz(updatedquiz));
+    }
   };
 
   const handleSave = async (quiz: any) => {
@@ -136,12 +128,13 @@ export default function DetailsEditor() {
       let resultData;
       if (isNew) {
         resultData = await client.createQuiz(cid as string, quiz); //TODO: print resultData
-        console.log("result data: ", resultData);
-        dispatch(addQuiz(quiz));
+        console.log("Created quiz Data:", resultData);
+        dispatch(addQuiz(resultData));
       } else {
         resultData = await client.updateQuiz(quiz);
-        dispatch(updateQuiz(quiz));
+        dispatch(updateQuiz(resultData));
       }
+      dispatch(clearDraftQuiz()); //save quiz之后要把draftquiz的状态清空
       navigate(`/Kanbas/Courses/${cid}/Quizzes`);
     } catch (error) {
       console.error("Error saving quizzes:", error);
@@ -149,7 +142,7 @@ export default function DetailsEditor() {
   };
 
   const handleCancel = () => {
-    console.log("handle cancel");
+    dispatch(clearDraftQuiz());
     navigate(`/Kanbas/Courses/${cid}/Quizzes`);
   };
 
@@ -159,24 +152,30 @@ export default function DetailsEditor() {
       let resultData;
       if (isNew) {
         resultData = await client.createQuiz(cid as string, quiz);
-        console.log("result data: ", resultData);
-        dispatch(addQuiz(quiz));
+        console.log("result data: ", resultData)
+        dispatch(addQuiz(resultData));
       } else {
         resultData = await client.updateQuiz(quiz);
-        dispatch(updateQuiz(quiz));
+        dispatch(updateQuiz(resultData));
       }
-
       //publish the quiz
-      const publishResult = await client.publishQuiz(
-        resultData._id || quiz._id
-      );
-      console.log("Quiz published: ", publishResult);
+      const publishResult = await client.publishQuiz(resultData._id);
+      console.log("quiz published: ", publishResult);
       dispatch(updateQuiz({ ...quiz, published: true }));
+
+      dispatch(clearDraftQuiz());
       navigate(`/Kanbas/Courses/${cid}/Quizzes`);
     } catch (error) {
       console.error("Error saving and publishing quizzes:", error);
+    };
+  }
+
+  useEffect(() => {
+    if (quiz && quiz.questions) {
+      const sum = quiz.questions.reduce((acc: any, curr: any) => acc + (curr.points || 0), 0);
+      setTotalPoints(sum);
     }
-  };
+  }, [quiz]);
 
   return (
     <div id="wd-quiz-editor" className="ms-5">
@@ -215,34 +214,25 @@ export default function DetailsEditor() {
       <br />
       {activeTab === "details" && (
         <div>
-          <input
-            className="form-control w-50"
-            placeholder="Unnamed Quiz"
+          < input
+            className='form-control w-50'
+            placeholder='Unnamed quiz'
             value={quiz.title}
             onChange={handleChange}
-            name="title"
-          />
-          <br />
-          <p>Quiz Instructions: </p>
+            name="title" /><br />
+          <p>quiz Instructions: </p>
           <ReactQuill
             value={quiz.description}
             onChange={handleDescriptionChange}
           />{" "}
           <br />
           <div className="row mb-3">
-            <label htmlFor="wd-quiz-type" className="col-2 col-form-label">
-              Quiz Type
-            </label>
+            <label htmlFor="wd-quiz-type"
+              className="col-2 col-form-label" >quiz Type</label>
             <div className="col-10">
-              <select
-                id="wd-group"
-                className="form-select"
-                value={quiz.quizType}
-                name="quizType"
-                onChange={handleChange}
-              >
-                <option value="GRADED QUIZ">Graded Quiz</option>
-                <option value="PRACTICE QUIZ">Practice Quiz</option>
+              <select id="wd-group" className="form-select" value={quiz.quizType} name="quizType" onChange={handleChange}>
+                <option value="GRADED quiz">Graded quiz</option>
+                <option value="PRACTICE quiz">Practice quiz</option>
                 <option value="GRADED SURVEY">Graded Survey</option>
                 <option value="UPGRADED SURVEY">Ungraded Survey</option>
               </select>
@@ -418,7 +408,10 @@ export default function DetailsEditor() {
         </div>
       )}
 
-      {activeTab === "questions" && (
+
+
+
+      {activeTab === 'questions' && (
         <div>
           <div className="float-end">
             <span style={{ marginRight: "8px" }}>Points</span>
@@ -426,58 +419,27 @@ export default function DetailsEditor() {
           </div>
           <br />
 
-          {quiz.questions.map((question) => (
-            <div
-              key={question._id}
-              className="question-item"
-              style={{ display: "flex", alignItems: "center" }}
-            >
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <input
-                  className="form-control me-2"
-                  style={{ marginRight: "10px" }}
+          {quiz.questions.map((question: any) => (
+            <div key={question.questionId} className="question-item" style={{ display: 'flex', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center' }} >
+                <span className='me-2 form-control'
+                  style={{ marginRight: '15px' }}>{question.questionId}</span>
+                <input className='form-control me-2'
+                  name="questionTitle"
+                  style={{ marginRight: '10px' }}
                   value={question.questionTitle}
-                  onChange={(e) =>
-                    handleQuestionTitleChange(question._id, e.target.value)
-                  }
-                />
-                <select
-                  style={{ marginRight: "10px" }}
+                  onChange={(e) => handleQuestionChange(e, question.questionId)} />
+                <input
+                  name="questionType"
+                  style={{ marginRight: '10px' }}
                   value={question.questionType}
-                  className="form-select"
-                  onChange={(e) =>
-                    handleQuestionTypeChange(question._id, e.target.value)
-                  }
-                >
-                  <option value="True/False">True/false question</option>
-                  <option value="Multiple Choice">
-                    Multiple choice question
-                  </option>
-                  <option value="Fill in Multiple Blanks">
-                    Fill in multiple blanks question
-                  </option>
-                </select>
+                  className='form-control'
+                  onChange={(e) => handleQuestionChange(e, question.questionId)} />
               </div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginLeft: "30px",
-                }}
-              >
-                <Link
-                  to={getLinkPath(question.questionType)}
-                  key={question._id}
-                >
-                  <FaEdit className="fs-5 me-3" />
-                </Link>
-                <FaRegTrashAlt
-                  className="fs-5 me-3"
-                  onClick={() => deleteQuestion(question._id)}
-                />
-              </div>
-              <br />
-              <br />
+              <div style={{ display: 'flex', alignItems: 'center', marginLeft: '30px' }}>
+                <FaEdit className='fs-5 me-3' onClick={() => handleEditQuestion(question.questionId)} />
+                <FaRegTrashAlt className='fs-5 me-3' onClick={() => deleteQuestion(question.questionId)} />
+              </div><br /><br />
             </div>
           ))}
           <br />
