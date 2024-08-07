@@ -10,6 +10,19 @@ export default function QuizDetail() {
   const currentUser = useSelector((state: any) => state.account.currentUser);
   const navigate = useNavigate();
 
+  const formatDate = (isoString: string) => {
+    const date = new Date(isoString);
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    };
+    return date.toLocaleString("en-US", options);
+  };
+
   useEffect(() => {
     const fetchQuiz = async () => {
       if (!qid) {
@@ -34,11 +47,11 @@ export default function QuizDetail() {
 
   return (
     <div className="container mt-4">
-      <div className="d-flex justify-content-between align-items-center">
+      <div className="d-flex justify-content-center align-items-center">
         {currentUser.role === "FACULTY" ? (
           <>
             <button
-              className="btn btn-primary"
+              className="btn btn-primary mx-2"
               onClick={() =>
                 navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}/Preview`)
               }
@@ -48,7 +61,7 @@ export default function QuizDetail() {
             <button
               className="btn btn-secondary"
               onClick={() =>
-                navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}/Edit`)
+                navigate(`/Kanbas/Courses/${cid}/Quizzes/${quiz._id}`)
               }
             >
               Edit
@@ -56,7 +69,7 @@ export default function QuizDetail() {
           </>
         ) : (
           <button
-            className="btn btn-success"
+            className="btn btn-danger"
             onClick={() =>
               navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}/Start`)
             }
@@ -67,54 +80,90 @@ export default function QuizDetail() {
       </div>
       <hr />
       <h1 className="mt-4">{quiz.title}</h1>
+      <br />
       {currentUser.role === "FACULTY" && (
         <dl className="row">
-          <dt className="col-sm-3">Quiz Type</dt>
-          <dd className="col-sm-9">{quiz.type}</dd>
+          <dt className="col-sm-3" style={{ textAlign: "right" }}>
+            Quiz Type
+          </dt>
+          <dd className="col-sm-9">{quiz.quizType}</dd>
 
-          <dt className="col-sm-3">Points</dt>
+          <dt className="col-sm-3 text-right" style={{ textAlign: "right" }}>
+            Points
+          </dt>
           <dd className="col-sm-9">{quiz.points}</dd>
 
-          <dt className="col-sm-3">Assignment Group</dt>
+          <dt className="col-sm-3 text-right" style={{ textAlign: "right" }}>
+            Assignment Group
+          </dt>
           <dd className="col-sm-9">{quiz.assignmentGroup}</dd>
 
-          <dt className="col-sm-3">Shuffle Answers</dt>
+          <dt className="col-sm-3 text-right" style={{ textAlign: "right" }}>
+            Shuffle Answers
+          </dt>
           <dd className="col-sm-9">{quiz.shuffleAnswers ? "Yes" : "No"}</dd>
 
-          <dt className="col-sm-3">Time Limit</dt>
+          <dt className="col-sm-3 text-right" style={{ textAlign: "right" }}>
+            Time Limit
+          </dt>
           <dd className="col-sm-9">{quiz.timeLimit}</dd>
 
-          <dt className="col-sm-3">Multiple Attempts</dt>
+          <dt className="col-sm-3 text-right" style={{ textAlign: "right" }}>
+            Multiple Attempts
+          </dt>
           <dd className="col-sm-9">{quiz.multipleAttempts ? "Yes" : "No"}</dd>
 
-          <dt className="col-sm-3">Show Correct Answers</dt>
+          <dt className="col-sm-3 text-right" style={{ textAlign: "right" }}>
+            How Many Attempts
+          </dt>
+          <dd className="col-sm-9">{quiz.howManyAttempts}</dd>
+
+          <dt className="col-sm-3 text-right" style={{ textAlign: "right" }}>
+            Show Correct Answers
+          </dt>
           <dd className="col-sm-9">{quiz.showCorrectAnswers}</dd>
 
-          <dt className="col-sm-3">One Question at a Time</dt>
+          <dt className="col-sm-3 text-right" style={{ textAlign: "right" }}>
+            Access Code
+          </dt>
+          <dd className="col-sm-9">{quiz.accessCode}</dd>
+
+          <dt className="col-sm-3 text-right" style={{ textAlign: "right" }}>
+            One Question at a Time
+          </dt>
           <dd className="col-sm-9">{quiz.oneQuestionAtATime ? "Yes" : "No"}</dd>
 
-          <dt className="col-sm-3">Require Respondus LockDown Browser</dt>
-          <dd className="col-sm-9">{quiz.requireRespondus ? "Yes" : "No"}</dd>
+          {/* <dt className="col-sm-3">Require Respondus LockDown Browser</dt>
+            <dd className="col-sm-9">{quiz.requireRespondus ? "Yes" : "No"}</dd>
 
-          <dt className="col-sm-3">Required to View Quiz Results</dt>
-          <dd className="col-sm-9">{quiz.viewQuizResults ? "Yes" : "No"}</dd>
+            <dt className="col-sm-3">Required to View Quiz Results</dt>
+            <dd className="col-sm-9">{quiz.viewQuizResults ? "Yes" : "No"}</dd> */}
 
-          <dt className="col-sm-3">Webcam Required</dt>
+          <dt className="col-sm-3 text-right" style={{ textAlign: "right" }}>
+            Webcam Required
+          </dt>
           <dd className="col-sm-9">{quiz.webcamRequired ? "Yes" : "No"}</dd>
 
-          <dt className="col-sm-3">Lock Questions After Answering</dt>
+          <dt className="col-sm-3 text-right" style={{ textAlign: "right" }}>
+            Lock Questions After Answering
+          </dt>
           <dd className="col-sm-9">{quiz.lockQuestions ? "Yes" : "No"}</dd>
-
-          <dt className="col-sm-3">Due Date</dt>
-          <dd className="col-sm-9">{quiz.dueDate}</dd>
-
-          <dt className="col-sm-3">Available From</dt>
-          <dd className="col-sm-9">{quiz.availableDate}</dd>
-
-          <dt className="col-sm-3">Until Date</dt>
-          <dd className="col-sm-9">{quiz.untilDate}</dd>
         </dl>
       )}
+      <dl className="row">
+        <dt className="col-sm-3 text-right" style={{ textAlign: "right" }}>
+          Due Date
+        </dt>
+        <dd className="col-sm-9">{formatDate(quiz.dueDate)}</dd>
+        <dt className="col-sm-3 text-right" style={{ textAlign: "right" }}>
+          Available From
+        </dt>
+        <dd className="col-sm-9">{formatDate(quiz.availableDate)}</dd>
+        <dt className="col-sm-3 text-right" style={{ textAlign: "right" }}>
+          Until Date
+        </dt>
+        <dd className="col-sm-9">{formatDate(quiz.availableUntilDate)}</dd>
+      </dl>
     </div>
   );
 }
