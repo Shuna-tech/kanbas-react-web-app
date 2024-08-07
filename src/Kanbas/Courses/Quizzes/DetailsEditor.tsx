@@ -11,13 +11,28 @@ import { useSelector, useDispatch } from "react-redux";
 import * as client from "./client";
 
 //TODO: to refactor the code with global state instead of local state
+interface LocationState {
+  activeTab: string;
+}
+
 export default function DetailsEditor() {
   const { cid, qid } = useParams<{ cid: string; qid?: string }>();
   const isNew = qid === "new";
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const location = useLocation();
+  const state = location.state as LocationState;
+
   const [activeTab, setActiveTab] = useState("details");
   const [totalPoints, setTotalPoints] = useState(0);
+
+  // Check for state passed in navigation and adjust the active tab accordingly
+  useEffect(() => {
+    if (location.state?.activeTab) {
+      setActiveTab(location.state.activeTab);
+    }
+  }, [location]);
 
   const quiz = useSelector((state: any) => state.quizzes.draftQuiz);
 
