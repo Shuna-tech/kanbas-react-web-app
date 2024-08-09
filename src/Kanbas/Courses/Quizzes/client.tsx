@@ -50,3 +50,20 @@ export const findQuizById = async (quizId: string) => {
     throw error;
   }
 };
+
+// find quiz result
+export const findQuizResultForUserAndQuiz = async (userId: string, quizId: string) => {
+  const response = await axios.get(`${REMOTE_SERVER}/api/users/${userId}/quizzes/${quizId}/result`);
+  return response.data;
+};
+
+// create or update the quiz result
+export const saveQuizResult = async (userId: string, quizId: string, result: any) => {
+  const response = await axios.post(`${REMOTE_SERVER}/api/quizResults`, {
+    userId,
+    quizId,
+    ...result,
+  });
+  return response.data;
+};
+

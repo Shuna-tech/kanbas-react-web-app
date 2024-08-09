@@ -15,6 +15,7 @@ import FillInBlanksEditor from "./Quizzes/FillInBlanksEditor";
 import QuestionEditor from "./Quizzes/QuestionEditor";
 import RichTextEditor from "./Quizzes/RichTextEditor";
 import QuizDetail from "./Quizzes/QuizDetail";
+import TakeQuiz from "./Quizzes/QuizTake";
 
 export default function Courses({ courses }: { courses: any[] }) {
   const { cid } = useParams();
@@ -47,6 +48,7 @@ export default function Courses({ courses }: { courses: any[] }) {
             <Route path="Quizzes/:qid" element={<DetailsEditor />} />
             <Route path="Quizzes/:qid/questions/:questionId" element={<QuestionEditor />} />
             <Route path="Quizzes/:qid/details" element={<QuizDetail />} />
+            <Route path="Quizzes/:qid/Start" element={<TakeQuiz/>}/>
           </Routes>
         </div>
       </div>
