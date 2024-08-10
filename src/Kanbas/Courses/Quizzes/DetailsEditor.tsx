@@ -232,8 +232,8 @@ export default function DetailsEditor() {
               className="col-2 col-form-label" >quiz Type</label>
             <div className="col-10">
               <select id="wd-group" className="form-select" value={quiz.quizType} name="quizType" onChange={handleChange}>
-                <option value="GRADED quiz">Graded quiz</option>
-                <option value="PRACTICE quiz">Practice quiz</option>
+                <option value="GRADED QUIZ">Graded quiz</option>
+                <option value="PRACTICE QUIZ">Practice quiz</option>
                 <option value="GRADED SURVEY">Graded Survey</option>
                 <option value="UPGRADED SURVEY">Ungraded Survey</option>
               </select>
