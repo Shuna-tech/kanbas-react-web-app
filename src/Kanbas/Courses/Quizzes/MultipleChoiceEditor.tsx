@@ -1,49 +1,88 @@
-import React, { useState } from 'react';
-// @ts-ignore
-import { EditorState } from 'draft-js';
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+import React, { useEffect, useState } from 'react';
 import { FaTrashAlt } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa";
+import { useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { addQuiz, deleteQuiz, updateQuiz, editQuiz, setQuizzes, setDraftQuiz, updateDraftQuiz, clearDraftQuiz } from "./reducer";
 
 
-export default function MultipleChoiceEditor(props: any) {
-  const { answers, setAnswers, correctAnswerId, setCorrectAnswerId } = props;
+export default function MultipleChoiceEditor() {
+  const { qid, questionId } = useParams();
+  const isNew = qid === 'new';
+  const dispatch = useDispatch();
+  const quiz = useSelector((state: any) => isNew ? state.quizzes.draftQuiz : state.quizzes.quizzes.find((quiz: any) => quiz._id === qid));
+  const questionIndex = quiz.questions.findIndex((q: any) => q.questionId === Number(questionId));
+
+  const [answers, setAnswers] = useState(quiz.questions[questionIndex]?.choices.length > 0 ? quiz.questions[questionIndex].choices : [
+    { id: Date.now(), text: "", isCorrect: false }
+  ]);
+  const [correctAnswerId, setCorrectAnswerId] = useState(answers.find((answer: any) => answer.isCorrect)?.id);
+
+  useEffect(() => {
+    if (answers.length === 0) {
+      setAnswers([{ id: Date.now(), text: "", isCorrect: false }]);
+    }
+  }, [answers]);
+
+  const updateGlobalQuestion = (updatedAnswers: any) => {
+    const updatedQuestions = [...quiz.questions];
+    updatedQuestions[questionIndex] = {
+      ...updatedQuestions[questionIndex],
+      choices: updatedAnswers
+    };
+    const updatedQuiz = {
+      ...quiz,
+      questions: updatedQuestions
+    };
+
+    if (isNew) {
+      dispatch(updateDraftQuiz(updatedQuiz));
+    } else {
+      dispatch(updateQuiz(updatedQuiz));
+    }
+  };
 
   const handleAnswerChange = (id: any, text: any) => {
-    setAnswers(answers.map((answer: any) => ({
-      ...answer,
-      text: answer.id === id ? text : answer.text
-    })));
+    const updatedAnswers = answers.map((answer: any) => answer.id === id ? { ...answer, text } : answer);
+    setAnswers(updatedAnswers);
+    updateGlobalQuestion(updatedAnswers);
   };
+
   const selectCorrectAnswer = (id: any) => {
-    setAnswers(answers.map((answer: any) => ({
+    const updatedAnswers = answers.map((answer: any) => ({
       ...answer,
       isCorrect: answer.id === id
-    })));
+    }));
+    setAnswers(updatedAnswers);
     setCorrectAnswerId(id);
+    updateGlobalQuestion(updatedAnswers);
   };
 
   const addAnswer = () => {
     const newAnswer = {
-      id: answers.length + 1,
+      id: Date.now(),
       text: "",
       isCorrect: false
     };
-    setAnswers([...answers, newAnswer]);
+    const updatedAnswers = [...answers, newAnswer];
+    setAnswers(updatedAnswers);
+    updateGlobalQuestion(updatedAnswers);
   };
 
   const deleteAnswer = (id: any) => {
-    setAnswers(answers.filter((answer: any) => answer.id !== id));
+    const updatedAnswers = answers.filter((answer: any) => answer.id !== id);
+    setAnswers(updatedAnswers);
+    updateGlobalQuestion(updatedAnswers);
   };
 
   return (
     <div>
-      {answers.map((answer: any) => (
+      {answers && answers.map((answer: any) => (
         <div key={answer.id} className="answer" style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
           <input
             type="radio"
             name="correctAnswer"
-            checked={correctAnswerId === answer.id}
+            checked={answer.isCorrect}
             onChange={() => selectCorrectAnswer(answer.id)}
             style={{ marginRight: '20px' }}
           />
@@ -61,5 +100,4 @@ export default function MultipleChoiceEditor(props: any) {
       <div onClick={addAnswer} className="text-danger float-end">+ Add Another Answer</div><br /><br />
     </div>
   );
-
 }
