@@ -91,8 +91,12 @@ export default function TakeQuiz() {
       attemptNumber,
     };
     try {
-      await client.saveQuizResult(currentUser._id, qid as string, result);
-      navigate(`/Kanbas/Courses/${cid}/Quizzes/${quiz._id}/details`);
+      if (currentUser.role === "FACULTY") { 
+        navigate(`/Kanbas/Courses/${cid}/Quizzes/${quiz._id}/preview/results`, { state: { result, quiz, cid } });
+      } else {
+        await client.saveQuizResult(currentUser._id, qid as string, result);
+        navigate(`/Kanbas/Courses/${cid}/Quizzes/${quiz._id}/details`);
+      }
     } catch (error) {
       console.error("Error submitting quiz:", error);
     }
@@ -107,6 +111,9 @@ export default function TakeQuiz() {
   return (
     <div className="container mt-4">
       <h1>{quiz.title}</h1> 
+      {currentUser.role === "FACULTY" && (
+        <p className="text-danger">This is a preview of the published version of the quiz</p>
+      )}
       <p>Time limit: {quiz.timeLimit} minutes</p>
      
      
@@ -132,33 +139,25 @@ export default function TakeQuiz() {
         )}
         {currentQuestion.questionType === "True/False" && (
           <div>
-            <div className="form-check">
-              <input
-                type="radio"
-                className="form-check-input"
-                name={`question-${currentQuestion.questionId}`}
-                value="True"
-                onChange={() => handleAnswerChange(currentQuestion.questionId, "True", currentQuestion.correct === "True")}
-              />
-              <label className="form-check-label">True</label>
-            </div>
-            <div className="form-check">
-              <input
-                type="radio"
-                className="form-check-input"
-                name={`question-${currentQuestion.questionId}`}
-                value="False"
-                onChange={() => handleAnswerChange(currentQuestion.questionId, "False", currentQuestion.correct === "False")}
-              />
-              <label className="form-check-label">False</label>
-            </div>
+           {currentQuestion.choices.map((choice: any, index: number) => (
+              <div key={index} className="form-check">
+                <input
+                  type="radio"
+                  className="form-check-input"
+                  name={`question-${currentQuestion.questionId}`}
+                  value={choice.optionText}
+                  onChange={() => handleAnswerChange(currentQuestion.questionId, choice.optionText, choice.correct)}
+                />
+                <label className="form-check-label">{choice.optionText}</label>
+              </div>
+            ))}
           </div>
         )}
         {currentQuestion.questionType === "Fill in Multiple Blanks" && (
           <input
             type="text"
             className="form-control"
-            onChange={(e) => handleAnswerChange(currentQuestion.questionId, e.target.value, e.target.value === currentQuestion.correctAnswer)}
+            onChange={(e) => handleAnswerChange(currentQuestion.questionId, e.target.value, e.target.value === currentQuestion.choices[0].optionText)}
           />
         )}
         <div className="d-flex justify-content-between mt-4">
