@@ -20,12 +20,27 @@ export default function DetailsEditor() {
   const isNew = qid === "new";
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
   const location = useLocation();
   const state = location.state as LocationState;
 
   const [activeTab, setActiveTab] = useState("details");
   const [totalPoints, setTotalPoints] = useState(0);
+  const quiz = useSelector((state: any) => {
+    return isNew ? state.quizzes.draftQuiz : state.quizzes.quizzes.find((quiz: any) => quiz._id === qid);
+  });
+
+  const formatDate = (dateString: Date) => {
+    if (!dateString) {
+      return ''; // or return null, depending on your requirements
+    }
+    try {
+      const date = new Date(dateString);
+      return date.toISOString().split('T')[0];
+    } catch (e) {
+      console.error('Invalid date', e);
+      return ''; // or handle the error as required
+    }
+  };
 
   // Check for state passed in navigation and adjust the active tab accordingly
   useEffect(() => {
@@ -34,7 +49,6 @@ export default function DetailsEditor() {
     }
   }, [location]);
 
-  const quiz = useSelector((state: any) => state.quizzes.draftQuiz);
 
   let counter = quiz.questions.length;
   const addNewQuestion = () => {
@@ -82,13 +96,14 @@ export default function DetailsEditor() {
     }
   }
 
-  useEffect(() => {
-    console.log("Updated quiz questions: ", quiz.questions);
-  }, [quiz.questions]);
-
-
   const handleEditQuestion = (questionId: any) => {
-    navigate(`/Kanbas/Courses/${cid}/Quizzes/new/questions/${questionId}`);
+    if (isNew) {
+      // Navigate to the new quiz path
+      navigate(`/Kanbas/Courses/${cid}/Quizzes/new/questions/${questionId}`);
+    } else {
+      // Navigate to the existing quiz path with the quiz ID
+      navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}/questions/${questionId}`);
+    }
   };
 
 
@@ -293,7 +308,7 @@ export default function DetailsEditor() {
                 <input
                   type="number"
                   name="minutes"
-                  value={quiz.minutes}
+                  value={quiz.timeLimit}
                   onChange={handleChange}
                   className="form-control ms-2"
                   style={{ width: "100px" }}
@@ -339,7 +354,7 @@ export default function DetailsEditor() {
                         id="wd-due-date"
                         type="date"
                         className="form-control"
-                        value={quiz.dueDate}
+                        value={formatDate(quiz.dueDate)}
                         onChange={handleChange}
                         name="dueDate"
                       />
@@ -358,7 +373,7 @@ export default function DetailsEditor() {
                           id="wd-available-from"
                           type="date"
                           className="form-control"
-                          value={quiz.availableDate}
+                          value={formatDate(quiz.availableDate)}
                           onChange={handleChange}
                           name="availableDate"
                         />
@@ -376,7 +391,7 @@ export default function DetailsEditor() {
                           id="wd-available-until"
                           type="date"
                           className="form-control"
-                          value={quiz.availableUntilDate}
+                          value={formatDate(quiz.availableUntilDate)}
                           onChange={handleChange}
                           name="availableUntilDate"
                         />
@@ -408,9 +423,6 @@ export default function DetailsEditor() {
           <br />
         </div>
       )}
-
-
-
 
       {activeTab === 'questions' && (
         <div>

@@ -11,7 +11,10 @@ export default function QuestionEditor() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isNew = qid === 'new';
-  const quiz = useSelector((state: any) => isNew ? state.quizzes.draftQuiz : state.quizzes.quizzes.find((quiz: any) => quiz._id === qid));
+  const quiz = useSelector((state: any) => {
+    console.log("Current quizzes state in editor:", state.quizzes.quizzes);
+    return isNew ? state.quizzes.draftQuiz : state.quizzes.quizzes.find((quiz: any) => quiz._id === qid);
+  });
   console.log("quiz: ", quiz)
   //use global state
   console.log("questionID: ", questionId)
@@ -53,10 +56,6 @@ export default function QuestionEditor() {
     navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}`, { state: { activeTab: 'questions' } });
 
   };
-
-  useEffect(() => {
-    console.log("Updated quiz questions: ", quiz.questions);
-  }, [quiz.questions]);
 
   const handleCancel = () => {
     dispatch(clearDraftQuiz());

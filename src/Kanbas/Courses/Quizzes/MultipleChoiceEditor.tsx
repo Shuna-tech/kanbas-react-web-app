@@ -4,13 +4,17 @@ import { FaEdit } from "react-icons/fa";
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { addQuiz, deleteQuiz, updateQuiz, editQuiz, setQuizzes, setDraftQuiz, updateDraftQuiz, clearDraftQuiz } from "./reducer";
-
+import * as client from "./client";
 
 export default function MultipleChoiceEditor() {
   const { qid, questionId } = useParams();
   const isNew = qid === 'new';
   const dispatch = useDispatch();
-  const quiz = useSelector((state: any) => isNew ? state.quizzes.draftQuiz : state.quizzes.quizzes.find((quiz: any) => quiz._id === qid));
+
+  const quiz = useSelector((state: any) => {
+    return isNew ? state.quizzes.draftQuiz : state.quizzes.quizzes.find((quiz: any) => quiz._id === qid);
+  });
+
   const questionIndex = quiz.questions.findIndex((q: any) => q.questionId === Number(questionId));
 
   const [answers, setAnswers] = useState(quiz.questions[questionIndex]?.choices.length > 0 ? quiz.questions[questionIndex].choices : [

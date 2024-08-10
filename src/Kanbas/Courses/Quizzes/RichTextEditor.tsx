@@ -11,7 +11,10 @@ export default function RichTextEditor() {
   const { qid, questionId } = useParams();
   const isNew = qid === 'new';
   const dispatch = useDispatch();
-  const quiz = useSelector((state: any) => state.quizzes.draftQuiz);
+  const quiz = useSelector((state: any) => {
+    return isNew ? state.quizzes.draftQuiz : state.quizzes.quizzes.find((quiz: any) => quiz._id === qid);
+  });
+
   const question = quiz.questions.find((q: any) => q.questionId === Number(questionId));
 
   // Helper function to create editor state from HTML
