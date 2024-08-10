@@ -45,6 +45,7 @@ export default function DetailsEditor() {
       question: "How much is 2 + 2?",
       questionType: "Multiple Choice",
       points: 0,
+      choices: []
     };
     const updatedQuestions = [...quiz.questions, newQuestion];
     if (isNew) { //当页面为new时，没有quizId,按照reducer逻辑需要quizId,无法更新页面
@@ -127,7 +128,7 @@ export default function DetailsEditor() {
     try {
       let resultData;
       if (isNew) {
-        resultData = await client.createQuiz(cid as string, quiz); //TODO: print resultData
+        resultData = await client.createQuiz(cid as string, quiz);
         console.log("Created quiz Data:", resultData);
         dispatch(addQuiz(resultData));
       } else {

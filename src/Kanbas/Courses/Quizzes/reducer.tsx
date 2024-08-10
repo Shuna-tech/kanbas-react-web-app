@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-
 const initialState = {
   quizzes: [],
   draftQuiz: { questions: [] } //essential for question editor, don't remove or edit
