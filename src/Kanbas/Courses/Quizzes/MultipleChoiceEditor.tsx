@@ -14,13 +14,13 @@ export default function MultipleChoiceEditor() {
   const questionIndex = quiz.questions.findIndex((q: any) => q.questionId === Number(questionId));
 
   const [answers, setAnswers] = useState(quiz.questions[questionIndex]?.choices.length > 0 ? quiz.questions[questionIndex].choices : [
-    { id: Date.now(), text: "", isCorrect: false }
+    { id: Date.now(), text: "", correct: false }
   ]);
-  const [correctAnswerId, setCorrectAnswerId] = useState(answers.find((answer: any) => answer.isCorrect)?.id);
+  const [correctAnswerId, setCorrectAnswerId] = useState(answers.find((answer: any) => answer.correct)?.id);
 
   useEffect(() => {
     if (answers.length === 0) {
-      setAnswers([{ id: Date.now(), text: "", isCorrect: false }]);
+      setAnswers([{ id: Date.now(), text: "", correct: false }]);
     }
   }, [answers]);
 
@@ -51,7 +51,7 @@ export default function MultipleChoiceEditor() {
   const selectCorrectAnswer = (id: any) => {
     const updatedAnswers = answers.map((answer: any) => ({
       ...answer,
-      isCorrect: answer.id === id
+      correct: answer.id === id
     }));
     setAnswers(updatedAnswers);
     setCorrectAnswerId(id);
@@ -62,7 +62,7 @@ export default function MultipleChoiceEditor() {
     const newAnswer = {
       id: Date.now(),
       text: "",
-      isCorrect: false
+      correct: false
     };
     const updatedAnswers = [...answers, newAnswer];
     setAnswers(updatedAnswers);
@@ -82,7 +82,7 @@ export default function MultipleChoiceEditor() {
           <input
             type="radio"
             name="correctAnswer"
-            checked={answer.isCorrect}
+            checked={answer.correct}
             onChange={() => selectCorrectAnswer(answer.id)}
             style={{ marginRight: '20px' }}
           />

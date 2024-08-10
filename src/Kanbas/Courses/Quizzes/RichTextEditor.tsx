@@ -95,7 +95,7 @@ export default function RichTextEditor() {
             className="form-select">
             <option>Multiple Choice</option>
             <option>True/False</option>
-            <option>Fill in Blanks</option>
+            <option>Fill in Multiple Blanks</option>
           </select>
         </div>
         <div style={{ marginRight: '20px' }}>

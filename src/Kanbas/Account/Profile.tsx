@@ -4,6 +4,7 @@ import { setCurrentUser } from "./reducer";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 export default function Profile() {
+  const [error, setError] = useState("");
   const [profile, setProfile] = useState<any>({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -20,11 +21,20 @@ export default function Profile() {
     dispatch(setCurrentUser(null));
     navigate("/Kanbas/Account/Signin");
   };
-
+  const updateProfile = async () => {
+    try {
+      const currentUser = await client.updateProfile(profile);
+      dispatch(setCurrentUser(currentUser));
+      navigate("/Kanbas/Account/Profile");
+    } catch (err: any) {
+      setError(err.response.data.message);
+    }
+  };
   useEffect(() => { fetchProfile(); }, []);
   return (
     <div className="wd-profile-screen">
       <h1>Profile</h1>
+      {error && <div className="wd-error alert alert-danger">{error}</div>}
       {profile && (
         <div>
           <div className="d-flex align-items-center mb-3">
@@ -73,7 +83,8 @@ export default function Profile() {
               <option value="STUDENT">Student</option>
             </select>
           </div>
-          <button onClick={signout} className="wd-signout-btn btn btn-danger w-100">
+          <button onClick={updateProfile} className="wd-updateProfile-btn btn btn-primary mb-2 w-50"> Update Profile </button><br />
+          <button onClick={signout} className="wd-signout-btn btn btn-danger w-50">
             Sign out
           </button>
         </div>

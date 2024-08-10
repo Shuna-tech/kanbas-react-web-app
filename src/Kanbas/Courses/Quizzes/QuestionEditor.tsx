@@ -23,7 +23,7 @@ export default function QuestionEditor() {
   const questionPoints = question?.points || 0;
   const questionDescription = question?.question || '';
   const questionChoices = question?.choices?.length > 0 ? question.choices : [
-    { id: Date.now(), text: "", isCorrect: false }
+    { id: Date.now(), text: "", correct: false }
   ];
 
   const updateQuestion = () => {
