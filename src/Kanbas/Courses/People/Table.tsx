@@ -5,12 +5,13 @@ import { useParams } from "react-router";
 import { useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa";
-
+import { useSelector, useDispatch } from "react-redux";
 export default function PeopleTable() {
   const [users, setUsers] = useState<any[]>([]);
   const [role, setRole] = useState("");
   const [name, setName] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const currentUser = useSelector((state: any) => state.account.currentUser);
 
   const {cid} = useParams();
   const navigate = useNavigate();
@@ -64,10 +65,10 @@ export default function PeopleTable() {
 
   return (
     <div id="wd-people-table">
-      <button onClick={createUser} className="float-end btn btn-danger wd-add-people">
+       {currentUser.role === "FACULTY" && (<><button onClick={createUser} className="float-end btn btn-danger wd-add-people">
         <FaPlus className="me-2" />
         People
-      </button>
+      </button></>)}
       <input onChange={(e) => filterUsersByName(e.target.value)} placeholder="Search people"
         className="form-control float-start w-25 me-2 wd-filter-by-name" />
       <select value={role} onChange={(e) =>filterUsersByRole(e.target.value)}

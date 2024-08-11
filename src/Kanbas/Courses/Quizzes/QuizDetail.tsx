@@ -11,6 +11,9 @@ export default function QuizDetail() {
   const navigate = useNavigate();
   const [studentResult, setStudentResult] = useState<any>(null);
   const [showCorrectAnswers, setShowCorrectAnswers] = useState(false);
+  const [availabilityMessage, setAvailabilityMessage] = useState<string | null>(
+    null
+  );
 
   const formatDate = (isoString: string) => {
     const date = new Date(isoString);
@@ -36,9 +39,36 @@ export default function QuizDetail() {
         console.log("Fetched quiz:", fetchedQuiz);
         setQuiz(fetchedQuiz);
         if (currentUser.role === "STUDENT") {
-          const result = await client.findQuizResultForUserAndQuiz(currentUser._id, qid);
-          setStudentResult(result);
+          try {
+            const result = await client.findQuizResultForUserAndQuiz(
+              currentUser._id,
+              qid
+            );
+            setStudentResult(result);
+          } catch (error) {
+            console.warn("Quiz result not found. Assuming first attempt.");
+            setStudentResult(null);
+          }
         }
+        const currentDate = new Date();
+        const availableDate = new Date(fetchedQuiz.availableDate);
+        const availableUntilDate = new Date(fetchedQuiz.availableUntilDate);
+
+        if (currentDate < availableDate) {
+          setAvailabilityMessage(
+            `This quiz is not available until ${formatDate(
+              fetchedQuiz.availableDate
+            )}.`
+          );
+        } else if (
+          currentDate >= availableDate &&
+          currentDate <= availableUntilDate
+        ) {
+          setAvailabilityMessage(null);
+        } else {
+          setAvailabilityMessage("This quiz is closed.");
+        }
+        console.log(availabilityMessage);
       } catch (error) {
         console.error("Error fetching quiz:", error);
       }
@@ -58,11 +88,15 @@ export default function QuizDetail() {
         ...studentResult,
         attemptNumber: quiz.howManyAttempts,
       };
-      const updatedQuizResult = await client.saveQuizResult(currentUser._id, qid as string, updatedResult);
-      
-      console.log('QuizResult updated successfully:', updatedQuizResult);
+      const updatedQuizResult = await client.saveQuizResult(
+        currentUser._id,
+        qid as string,
+        updatedResult
+      );
+
+      console.log("QuizResult updated successfully:", updatedQuizResult);
     } catch (error) {
-      console.error('Error updating QuizResult:', error);
+      console.error("Error updating QuizResult:", error);
     }
   };
 
@@ -93,31 +127,39 @@ export default function QuizDetail() {
           </>
         ) : (
           <>
-          {attemptsRemaining > 0 && !showCorrectAnswers && (
-            <button
-              className="btn btn-danger"
-              style={{ marginRight: '20px' }}
-              onClick={() =>
-                navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}/Start`)
-              }
-            >
-              {studentResult ? `Take it again (${attemptsRemaining} attempts left)` : "Start the Quiz"}
-            </button>
-          )}
-          {attemptsRemaining === 0 && (
-            <p>You have no more attempts left.</p>
-          )}
-          {studentResult && attemptsRemaining > 0 && (
-            <>
-              <button
-                className="btn btn-info"
-                onClick={handleReviewCorrectAnswers}
-              >
-                Review correct answers (no more attempts)
-              </button>
-            </>
-          )}
-        </>
+            {availabilityMessage ? (
+              <div className="alert alert-info" role="alert">
+                {availabilityMessage}
+              </div>
+            ) : (
+              <>
+                {attemptsRemaining > 0 && !showCorrectAnswers && (
+                  <button
+                    className="btn btn-danger"
+                    style={{ marginRight: "20px" }}
+                    onClick={() =>
+                      navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}/Start`)
+                    }
+                  >
+                    {studentResult
+                      ? `Take it again (${attemptsRemaining} attempts left)`
+                      : "Start the Quiz"}
+                  </button>
+                )}
+                {attemptsRemaining === 0 && (
+                  <p>You have no more attempts left.</p>
+                )}
+                {studentResult && attemptsRemaining > 0 && (
+                  <button
+                    className="btn btn-info"
+                    onClick={handleReviewCorrectAnswers}
+                  >
+                    Review correct answers (no more attempts)
+                  </button>
+                )}
+              </>
+            )}
+          </>
         )}
       </div>
       <hr />
@@ -133,7 +175,7 @@ export default function QuizDetail() {
           <dt className="col-sm-3 text-right" style={{ textAlign: "right" }}>
             Points
           </dt>
-          <dd className="col-sm-9">{quiz.points}</dd>
+          <dd className="col-sm-9">{quiz.totalPoints}</dd>
 
           <dt className="col-sm-3 text-right" style={{ textAlign: "right" }}>
             Assignment Group
@@ -210,7 +252,9 @@ export default function QuizDetail() {
       {currentUser.role === "STUDENT" && studentResult && (
         <div>
           <h3>Quiz Result from Last Attempt</h3>
-          <p>Score: {studentResult.totalScore} / {quiz.totalPoints}</p>
+          <p>
+            Score: {studentResult.totalScore} / {quiz.totalPoints}
+          </p>
           {studentResult.answers.map((answer: any, index: number) => {
             const question = quiz.questions.find(
               (q: any) => q.questionId === answer.questionId
@@ -221,166 +265,186 @@ export default function QuizDetail() {
                 <h2>{`Question ${index + 1}: ${question.questionTitle}`}</h2>
                 <h5>{question.question}</h5>
                 <div className="mb-2">
-                {question.questionType === "Multiple Choice" && (
-                <div>
-                {question.choices.map((choice: any, idx: number) => (
-                  <div key={idx} className="d-flex align-items-center mb-2">
+                  {question.questionType === "Multiple Choice" && (
                     <div>
-                      <input
-                        type="radio"
-                        className="form-check-input"
-                        checked={answer.answer === choice.optionText}
-                        disabled
-                      />
-                      <label className="ml-2">
-                        {choice.optionText}
-                      </label>
-                      {(attemptsRemaining === 0 || showCorrectAnswers) && answer.isCorrect && answer.answer === choice.optionText && (
-                        <span
-                          className="badge mr-2"
-                          style={{
-                            backgroundColor: "green",
-                            color: "white",
-                            padding: "5px 10px",
-                            borderRadius: "10px",
-                          }}
+                      {question.choices.map((choice: any, idx: number) => (
+                        <div
+                          key={idx}
+                          className="d-flex align-items-center mb-2"
                         >
-                          Correct!
-                        </span>
-                      )}
-                      {(attemptsRemaining === 0 || showCorrectAnswers) && !answer.isCorrect && answer.answer === choice.optionText && (
-                        <span
-                          className="badge mr-2"
-                          style={{
-                            backgroundColor: "red",
-                            color: "white",
-                            padding: "5px 10px",
-                            borderRadius: "10px",
-                          }}
-                        >
-                          Wrong!
-                        </span>
-                      )}
-                      {(attemptsRemaining === 0 || showCorrectAnswers) && answer.answer !== choice.optionText && choice.correct && (
-                        <span
-                          className="badge mr-2"
-                          style={{
-                            backgroundColor: "blue",
-                            color: "white",
-                            padding: "5px 10px",
-                            borderRadius: "10px",
-                          }}
-                        >
-                          Correct Answer
-                        </span>
-                      )}
+                          <div>
+                            <input
+                              type="radio"
+                              className="form-check-input"
+                              checked={answer.answer === choice.optionText}
+                              disabled
+                            />
+                            <label className="ml-2">{choice.optionText}</label>
+                            {(attemptsRemaining === 0 || showCorrectAnswers) &&
+                              answer.isCorrect &&
+                              answer.answer === choice.optionText && (
+                                <span
+                                  className="badge mr-2"
+                                  style={{
+                                    backgroundColor: "green",
+                                    color: "white",
+                                    padding: "5px 10px",
+                                    borderRadius: "10px",
+                                  }}
+                                >
+                                  Correct!
+                                </span>
+                              )}
+                            {(attemptsRemaining === 0 || showCorrectAnswers) &&
+                              !answer.isCorrect &&
+                              answer.answer === choice.optionText && (
+                                <span
+                                  className="badge mr-2"
+                                  style={{
+                                    backgroundColor: "red",
+                                    color: "white",
+                                    padding: "5px 10px",
+                                    borderRadius: "10px",
+                                  }}
+                                >
+                                  Wrong!
+                                </span>
+                              )}
+                            {(attemptsRemaining === 0 || showCorrectAnswers) &&
+                              answer.answer !== choice.optionText &&
+                              choice.correct && (
+                                <span
+                                  className="badge mr-2"
+                                  style={{
+                                    backgroundColor: "blue",
+                                    color: "white",
+                                    padding: "5px 10px",
+                                    borderRadius: "10px",
+                                  }}
+                                >
+                                  Correct Answer
+                                </span>
+                              )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                ))}
-              </div>
-              )}
-              {question.questionType === "True/False" && (
-                  <div>
-                  {question.choices.map((choice: any, idx: number) => (
-                    <div key={idx} className="d-flex align-items-center mb-2">
+                  )}
+                  {question.questionType === "True/False" && (
                     <div>
-                      <input
-                        type="radio"
-                        className="form-check-input"
-                        checked={answer.answer === choice.optionText}
-                        disabled
-                      />
-                      <label className="ml-2">
-                        {choice.optionText}
-                      </label>
-                      {(attemptsRemaining === 0 || showCorrectAnswers) && answer.isCorrect && answer.answer === choice.optionText && (
-                        <span
-                          className="badge mr-2"
-                          style={{
-                            backgroundColor: "green",
-                            color: "white",
-                            padding: "5px 10px",
-                            borderRadius: "10px",
-                          }}
+                      {question.choices.map((choice: any, idx: number) => (
+                        <div
+                          key={idx}
+                          className="d-flex align-items-center mb-2"
                         >
-                          Correct!
-                        </span>
-                      )}
-                      {(attemptsRemaining === 0 || showCorrectAnswers) && !answer.isCorrect && answer.answer === choice.optionText && (
-                        <span
-                          className="badge mr-2"
-                          style={{
-                            backgroundColor: "red",
-                            color: "white",
-                            padding: "5px 10px",
-                            borderRadius: "10px",
-                          }}
-                        >
-                          Wrong!
-                        </span>
-                      )}
-                      {(attemptsRemaining === 0 || showCorrectAnswers) && answer.answer !== choice.optionText && choice.correct && (
-                        <span
-                          className="badge mr-2"
-                          style={{
-                            backgroundColor: "blue",
-                            color: "white",
-                            padding: "5px 10px",
-                            borderRadius: "10px",
-                          }}
-                        >
-                          Correct Answer
-                        </span>
-                      )}
+                          <div>
+                            <input
+                              type="radio"
+                              className="form-check-input"
+                              checked={answer.answer === choice.optionText}
+                              disabled
+                            />
+                            <label className="ml-2">{choice.optionText}</label>
+                            {(attemptsRemaining === 0 || showCorrectAnswers) &&
+                              answer.isCorrect &&
+                              answer.answer === choice.optionText && (
+                                <span
+                                  className="badge mr-2"
+                                  style={{
+                                    backgroundColor: "green",
+                                    color: "white",
+                                    padding: "5px 10px",
+                                    borderRadius: "10px",
+                                  }}
+                                >
+                                  Correct!
+                                </span>
+                              )}
+                            {(attemptsRemaining === 0 || showCorrectAnswers) &&
+                              !answer.isCorrect &&
+                              answer.answer === choice.optionText && (
+                                <span
+                                  className="badge mr-2"
+                                  style={{
+                                    backgroundColor: "red",
+                                    color: "white",
+                                    padding: "5px 10px",
+                                    borderRadius: "10px",
+                                  }}
+                                >
+                                  Wrong!
+                                </span>
+                              )}
+                            {(attemptsRemaining === 0 || showCorrectAnswers) &&
+                              answer.answer !== choice.optionText &&
+                              choice.correct && (
+                                <span
+                                  className="badge mr-2"
+                                  style={{
+                                    backgroundColor: "blue",
+                                    color: "white",
+                                    padding: "5px 10px",
+                                    borderRadius: "10px",
+                                  }}
+                                >
+                                  Correct Answer
+                                </span>
+                              )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                  ))}
-                </div>
-              )}
-              {question.questionType === "Fill in Multiple Blanks" && (
-                <div>
-                  <p>
-                    Your Answer:{" "}
-                    <span className={answer.isCorrect}>
-                      {answer.answer}
-                    </span>
-                    {(attemptsRemaining === 0 || showCorrectAnswers) && answer.isCorrect && (
-                        <span
-                          className="badge mr-2"
-                          style={{
-                            backgroundColor: "green",
-                            color: "white",
-                            padding: "5px 10px",
-                            borderRadius: "10px",
-                          }}
-                        >
-                          Correct!
+                  )}
+                  {question.questionType === "Fill in Multiple Blanks" && (
+                    <div>
+                      <p>
+                        Your Answer:{" "}
+                        <span className={answer.isCorrect}>
+                          {answer.answer}
                         </span>
-                      )}
-                      {(attemptsRemaining === 0 || showCorrectAnswers) && !answer.isCorrect && (
-                        <span
-                          className="badge mr-2"
-                          style={{
-                            backgroundColor: "red",
-                            color: "white",
-                            padding: "5px 10px",
-                            borderRadius: "10px",
-                          }}
-                        >
-                          Wrong!
-                        </span>
-                      )}
-                    {(attemptsRemaining === 0 || showCorrectAnswers) && !answer.isCorrect && (
-                      <div className="ml-2 text-danger">
-                        <b>Correct Answer: {question.choices[0].optionText}</b>
-                      </div>
-                    )}
-                  </p>
-                </div>
-              )}
+                        {(attemptsRemaining === 0 || showCorrectAnswers) &&
+                          answer.isCorrect && (
+                            <span
+                              className="badge mr-2"
+                              style={{
+                                backgroundColor: "green",
+                                color: "white",
+                                padding: "5px 10px",
+                                borderRadius: "10px",
+                              }}
+                            >
+                              Correct!
+                            </span>
+                          )}
+                        {(attemptsRemaining === 0 || showCorrectAnswers) &&
+                          !answer.isCorrect && (
+                            <span
+                              className="badge mr-2"
+                              style={{
+                                backgroundColor: "red",
+                                color: "white",
+                                padding: "5px 10px",
+                                borderRadius: "10px",
+                              }}
+                            >
+                              Wrong!
+                            </span>
+                          )}
+                        {(attemptsRemaining === 0 || showCorrectAnswers) &&
+                          !answer.isCorrect && (
+                            <div className="ml-2 text-danger">
+                              <b>
+                                Correct Answer: {question.choices[0].optionText}
+                              </b>
+                            </div>
+                          )}
+                      </p>
+                    </div>
+                  )}
                 </div>
                 <p>
-                  (Points:{answer.isCorrect ? question.points : 0} / {question.points})
+                  (Points:{answer.isCorrect ? question.points : 0} /{" "}
+                  {question.points})
                 </p>
               </div>
             );

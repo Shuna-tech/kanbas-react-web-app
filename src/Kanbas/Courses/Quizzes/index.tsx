@@ -22,6 +22,7 @@ export default function Quizzes() {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [currentQuizId, setCurrentQuizId] = useState(null);
+  const [quizResults, setQuizResults] = useState<any>({}); // State to store quiz results
 
   const formatDate = (isoString: string) => {
     const date = new Date(isoString);
@@ -67,6 +68,18 @@ export default function Quizzes() {
     const quizzes = await client.findQuizzesForCourse(cid as string);
     console.log("Fetched quizzes:", quizzes);
     dispatch(setQuizzes(quizzes));
+    if (currentUser.role === "STUDENT") {
+      const results: { [key: string]: any } = {};
+      for (const quiz of quizzes) {
+        try {
+          const result = await client.findQuizResultForUserAndQuiz(currentUser._id, quiz._id);
+          results[quiz._id] = result;
+        } catch (error) {
+          console.error("Error fetching quiz result:", error);
+        }
+      }
+      setQuizResults(results); // Store results in state
+    }
   };
 
   const renderAvailability = (quiz: any) => {
@@ -85,6 +98,12 @@ export default function Quizzes() {
       return "Closed";
     }
   };
+
+  //Filter quizzes based on user role(only published quizzes for students)
+  const filteredQuizzes = currentUser.role === "STUDENT" 
+  ? quizzes.filter((quiz: any) => quiz.published)
+  : quizzes;
+
   useEffect(() => {
     fetchQuizzes();
   }, []);
@@ -93,7 +112,7 @@ export default function Quizzes() {
 
   return (
     <div id="wd-quizzes" className="ms-5">
-      <QuizzesControls />
+       {currentUser.role === "FACULTY" && <QuizzesControls />}
       <br />
       <br />
       <ul id="wd-quizzes" className="list-group rounded-0">
@@ -104,7 +123,7 @@ export default function Quizzes() {
           </div>
         </li>
       </ul>
-      {quizzes
+      {(currentUser.role === "FACULTY" ? quizzes : filteredQuizzes)
         .filter((quiz: any) => quiz.courseID === cid)
         .map((quiz: any) => (
           <ul
@@ -135,21 +154,28 @@ export default function Quizzes() {
                   <span className="text-muted fw-bold">Due </span>
                   <span className="text-muted">{formatDate(quiz.dueDate)}</span>
                   <span className="mx-2">|</span>
-                  <span className="text-muted">{quiz.points} pts</span>
+                  <span className="text-muted">{quiz.totalPoints} pts</span>
                   <span className="mx-2">|</span>
                   <span className="text-muted">
                     {quiz.questions.length} questions
                   </span>
-                  {currentUser.role === "STUDENT" && (
+                  {currentUser.role === "STUDENT" && quizResults[quiz._id] && (
                     <>
                       <span className="mx-2">|</span>
-                      <span className="text-muted">Score: {quiz.score}</span>
+                      <span className="text-muted">
+                        Score: {quizResults[quiz._id].totalScore}
+                      </span>
                     </>
                   )}
                 </div>
               </div>
+              {/* ADD: Show appropriate icon based on publish status */}
               <div className="float-end">
-                <GreenCheckmark />
+                {quiz.published ? (
+                  <GreenCheckmark />
+                ) : (
+                  <span className="text-danger">❌</span>
+                )}
               </div>
               {currentUser.role === "FACULTY" && (
                 <div className="float-end">

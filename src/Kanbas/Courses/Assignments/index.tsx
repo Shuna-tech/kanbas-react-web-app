@@ -19,7 +19,8 @@ export default function Assignments() {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [currentAssignmentId, setCurrentAssignmentId] = useState(null);
-
+  const currentUser = useSelector((state: any) => state.account.currentUser);
+  
   const handleDelete = async(assignmentId: any) => {
     await client.deleteAssignment(assignmentId);
     dispatch(deleteAssignment(assignmentId))
@@ -37,7 +38,8 @@ export default function Assignments() {
 
   return (
     <div id="wd-assignments" className="ms-5">
-      <AssignmentsControls /><br /><br />
+      {currentUser.role === "FACULTY" &&(<><AssignmentsControls /><br /><br /></>)}
+      
       <ul id="wd-assignments" className="list-group rounded-0">
         <li className="wd-assignment list-group-item p-0 fs-5 border-gray">
           <div className="wd-title p-3 ps-2 bg-secondary">
@@ -59,8 +61,9 @@ export default function Assignments() {
             <li key={assignment._id} className="wd-assignment-list-item list-group-item p-0 fs-5 d-flex align-items-center text-nowrap">
               <div className="ps-2">
                 <BsGripVertical className="me-2 fs-3" />
-                <FaEdit className="me-2 fs-3 text-success" 
-                  onClick={() => { navigate(`/Kanbas/Courses/${cid}/Assignments/${assignment._id}`)}}/>
+                {currentUser.role === "FACULTY" && (<><FaEdit className="me-2 fs-3 text-success" 
+                  onClick={() => { navigate(`/Kanbas/Courses/${cid}/Assignments/${assignment._id}`)}}/></>)}
+
               </div>
               <div className="p-3 flex-grow-1">
                 <div>
@@ -84,11 +87,12 @@ export default function Assignments() {
                   </div>
               </div>
               <div className="float-end">
-                <FaTrash className="text-danger me-3 fs-4"
+              {currentUser.role === "FACULTY" && (<><FaTrash className="text-danger me-3 fs-4"
                   onClick={() => {
                     setCurrentAssignmentId(assignment._id);
                     setShowModal(true);
-                  }} />
+                  }} /></>)}
+
                 <GreenCheckmark />
                 <IoEllipsisVertical  className="ms-2 me-3 fs-3"/>                
               </div>
