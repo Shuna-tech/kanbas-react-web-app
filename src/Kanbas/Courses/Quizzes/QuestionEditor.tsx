@@ -16,7 +16,7 @@ export default function QuestionEditor() {
     return isNew ? state.quizzes.draftQuiz : state.quizzes.quizzes.find((quiz: any) => quiz._id === qid);
   });
   console.log("quiz: ", quiz)
-  //use global state
+  // use global state
   console.log("questionID: ", questionId)
   const question = quiz.questions.find((q: any) => q.questionId === Number(questionId)); //to convert into number
   console.log("question: ", question)
@@ -47,18 +47,16 @@ export default function QuestionEditor() {
       ...quiz,
       questions: updatedQuestions
     };
-
     if (isNew) {
       dispatch(updateDraftQuiz(updateData));
     } else {
       dispatch(updateQuiz(updateData));
     }
     navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}`, { state: { activeTab: 'questions' } });
-
   };
 
   const handleCancel = () => {
-    dispatch(clearDraftQuiz());
+    // dispatch(clearDraftQuiz());
     navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}`, { state: { activeTab: 'questions' } });
   };
 

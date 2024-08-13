@@ -10,7 +10,6 @@ import { addQuiz, deleteQuiz, updateQuiz, editQuiz, setQuizzes, setDraftQuiz, up
 import { useSelector, useDispatch } from "react-redux";
 import * as client from "./client";
 
-//TODO: to refactor the code with global state instead of local state
 interface LocationState {
   activeTab: string;
 }
@@ -31,18 +30,17 @@ export default function DetailsEditor() {
 
   const formatDate = (dateString: Date) => {
     if (!dateString) {
-      return ''; // or return null, depending on your requirements
+      return '';
     }
     try {
       const date = new Date(dateString);
       return date.toISOString().split('T')[0];
     } catch (e) {
       console.error('Invalid date', e);
-      return ''; // or handle the error as required
+      return '';
     }
   };
 
-  // Check for state passed in navigation and adjust the active tab accordingly
   useEffect(() => {
     if (location.state?.activeTab) {
       setActiveTab(location.state.activeTab);
@@ -56,13 +54,13 @@ export default function DetailsEditor() {
     const newQuestion = {
       questionId: Date.now() + counter++,
       questionTitle: 'New Question',
-      question: "How much is 2 + 2?",
+      question: "",
       questionType: "Multiple Choice",
       points: 0,
       choices: []
     };
     const updatedQuestions = [...quiz.questions, newQuestion];
-    if (isNew) { //当页面为new时，没有quizId,按照reducer逻辑需要quizId,无法更新页面
+    if (isNew) {
       // For a new quiz, update the draft quiz state
       console.log("Updating draft quiz with new question for a new quiz");
       dispatch(updateDraftQuiz({
@@ -106,16 +104,6 @@ export default function DetailsEditor() {
     }
   };
 
-
-  // const handleChange = (e: any) => {
-  //   const { name, value, type, checked } = e.target;
-  //   const updatedquiz = { ...quiz, [name]: type === 'checkbox' ? checked : value }
-  //   if (isNew) {
-  //     dispatch(updateDraftQuiz(updatedquiz))
-  //   } else {
-  //     dispatch(updateQuiz(updatedquiz));
-  //   }
-  // }
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
 
@@ -177,13 +165,16 @@ export default function DetailsEditor() {
 
   const handleSave = async (quiz: any) => {
     try {
+      const updatedTotalPoints = quiz.questions.reduce((acc: any, curr: any) => acc + (curr.points || 0), 0);
+      const quizWithUpdatedPoints = { ...quiz, totalPoints: updatedTotalPoints };
+
       let resultData;
       if (isNew) {
-        resultData = await client.createQuiz(cid as string, quiz);
+        resultData = await client.createQuiz(cid as string, quizWithUpdatedPoints);
         console.log("Created quiz Data:", resultData);
         dispatch(addQuiz(resultData));
       } else {
-        resultData = await client.updateQuiz(quiz);
+        resultData = await client.updateQuiz(quizWithUpdatedPoints);
         dispatch(updateQuiz(resultData));
       }
       dispatch(clearDraftQuiz()); //save quiz之后要把draftquiz的状态清空
@@ -207,14 +198,22 @@ export default function DetailsEditor() {
         console.log("result data: ", resultData)
         dispatch(addQuiz(resultData));
       } else {
-        resultData = await client.updateQuiz(quiz);
-        dispatch(updateQuiz(resultData));
+        // Make the update call
+        const response = await client.updateQuiz(quiz);
+        console.log("Update response:", response);
+        if (response === "") {
+          console.log("Update successful, no content returned.");
+          console.log("quiz111: ", quiz)
+          dispatch(updateQuiz(quiz));
+        } else {
+          dispatch(updateQuiz(response));
+        }
       }
       //publish the quiz
-      const publishResult = await client.publishQuiz(resultData._id);
-      console.log("quiz published: ", publishResult);
+      console.log("resultData: ", resultData)
+      await client.saveAndPublishQuiz(quiz._id);
+      console.log("quiz published: ", quiz);
       dispatch(updateQuiz({ ...quiz, published: true }));
-
       dispatch(clearDraftQuiz());
       navigate(`/Kanbas/Courses/${cid}/Quizzes`);
     } catch (error) {
@@ -223,22 +222,26 @@ export default function DetailsEditor() {
   }
 
   useEffect(() => {
-    if (quiz && quiz.questions) {
+    if (quiz && quiz.questions && !isNew) {
       const sum = quiz.questions.reduce((acc: any, curr: any) => acc + (curr.points || 0), 0);
       setTotalPoints(sum);
     }
-  }, [quiz]);
+  }, [quiz, isNew]);
 
   return (
     <div id="wd-quiz-editor" className="ms-5">
       <div className="float-end">
         <span style={{ marginRight: "8px" }}>Points</span>
-        <span style={{ marginRight: "10px" }}>{totalPoints}</span>
+        <span style={{ marginRight: "10px" }}>{quiz.totalPoints}</span>
         <span style={{ marginRight: "8px", color: "grey" }}>
           <span
-            style={{ borderBottom: "1px solid grey", cursor: "not-allowed" }}
+            style={{
+              color: quiz.published ? "green" : "grey",
+              textDecoration: quiz.published ? "none" : "underline",
+              cursor: "not-allowed"
+            }}
           >
-            Not Published
+            {quiz.published ? "Published" : "Not Published"}
           </span>
         </span>
         <FaEllipsisVertical />

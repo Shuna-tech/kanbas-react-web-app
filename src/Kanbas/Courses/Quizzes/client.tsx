@@ -24,19 +24,8 @@ export const findQuizzesForCourse = async (courseId: string) => {
   return response.data;
 };
 
-//with token
-//export const findQuizzesForCourse = async (courseId: string) => {
-//  const token = localStorage.getItem("token");
-//  const response = await axios.get(`${COURSES_API}/${courseId}/quizzes`, {
-//    headers: {
-//      Authorization: `Bearer ${token}`,
-//    },
-//  });
-//  return response.data;
-//};
-
 //Note: for saveAndPublishQuiz
-export const publishQuiz = async (quizId: string) => {
+export const saveAndPublishQuiz = async (quizId: string) => {
   const response = await axios.put(`${QUIZZES_API}/${quizId}/publish`);
   return response.data;
 };

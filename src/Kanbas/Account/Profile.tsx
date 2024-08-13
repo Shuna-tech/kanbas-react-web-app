@@ -10,14 +10,6 @@ export default function Profile() {
   const dispatch = useDispatch();
   const currentUser = useSelector((state: any) => state.account.currentUser);
 
-  // const fetchProfile = async () => {
-  //   try {
-  //     const account = await client.profile();
-  //     setProfile(account);
-  //   } catch (err: any) {
-  //     navigate("/Kanbas/Account/Signin");
-  //   }
-  // };
   const signout = async () => {
     await client.signout();
     dispatch(setCurrentUser(null));
@@ -26,25 +18,24 @@ export default function Profile() {
   const updateProfile = async () => {
     try {
       const updatedUser = await client.updateProfile(profile);
-      console.log('Updated user from backend:', updatedUser); // 打印更新后的用户信息
+      console.log('Updated user from backend:', updatedUser);
       dispatch(setCurrentUser(updatedUser));
       navigate("/Kanbas/Account/Profile");
     } catch (err: any) {
-      console.error(err); // 更详细的错误打印
+      console.error(err);
       setError(err.response.data.message);
     }
   };
   const handleDateChange = (e: any) => {
-    const date = new Date(e.target.value).toISOString(); // Converts the date back to ISO format for internal state
+    const date = new Date(e.target.value).toISOString();
     setProfile({ ...profile, dob: date });
   };
 
-  // useEffect(() => { fetchProfile(); }, []);
   useEffect(() => {
     if (currentUser) {
       setProfile({
         ...currentUser,
-        dob: currentUser.dob ? new Date(currentUser.dob).toISOString().split("T")[0] : '' // 格式化日期以匹配 HTML date 输入的要求
+        dob: currentUser.dob ? new Date(currentUser.dob).toISOString().split("T")[0] : ''
       });
     }
   }, [currentUser]);
@@ -96,14 +87,20 @@ export default function Profile() {
 
           <div className="d-flex align-items-center mb-3">
             <label htmlFor="role" className="form-label me-2" style={{ width: '10%' }}>Role</label>
-            <select className="wd-role form-control mb-2"
+            {/* <select className="wd-role form-control mb-2"
               value={profile.role}
               onChange={(e) => setProfile({ ...profile, role: e.target.value })}>
               <option value="USER">User</option>
               <option value="ADMIN">Admin</option>
               <option value="FACULTY">Faculty</option>
               <option value="STUDENT">Student</option>
-            </select>
+            </select> */}
+            <input
+              type="text"
+              className="wd-role form-control mb-2"
+              value={profile.role}
+              readOnly
+            />
           </div>
           <div className="d-flex ">
             <button onClick={updateProfile} className="wd-updateProfile-btn btn btn-primary me-2">
