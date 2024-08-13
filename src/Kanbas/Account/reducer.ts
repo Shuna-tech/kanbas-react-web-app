@@ -7,6 +7,7 @@ const accountSlice = createSlice({
   initialState,
   reducers: {
     setCurrentUser: (state, action) => {
+      console.log('Updating current user in redux:', action.payload); // 检查传入的 payload
       state.currentUser = action.payload;
     },
   },

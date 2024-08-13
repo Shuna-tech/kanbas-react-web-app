@@ -8,14 +8,16 @@ export default function Profile() {
   const [profile, setProfile] = useState<any>({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const fetchProfile = async () => {
-    try {
-      const account = await client.profile();
-      setProfile(account);
-    } catch (err: any) {
-      navigate("/Kanbas/Account/Signin");
-    }
-  };
+  const currentUser = useSelector((state: any) => state.account.currentUser);
+
+  // const fetchProfile = async () => {
+  //   try {
+  //     const account = await client.profile();
+  //     setProfile(account);
+  //   } catch (err: any) {
+  //     navigate("/Kanbas/Account/Signin");
+  //   }
+  // };
   const signout = async () => {
     await client.signout();
     dispatch(setCurrentUser(null));
@@ -23,14 +25,30 @@ export default function Profile() {
   };
   const updateProfile = async () => {
     try {
-      const currentUser = await client.updateProfile(profile);
-      dispatch(setCurrentUser(currentUser));
+      const updatedUser = await client.updateProfile(profile);
+      console.log('Updated user from backend:', updatedUser); // 打印更新后的用户信息
+      dispatch(setCurrentUser(updatedUser));
       navigate("/Kanbas/Account/Profile");
     } catch (err: any) {
+      console.error(err); // 更详细的错误打印
       setError(err.response.data.message);
     }
   };
-  useEffect(() => { fetchProfile(); }, []);
+  const handleDateChange = (e: any) => {
+    const date = new Date(e.target.value).toISOString(); // Converts the date back to ISO format for internal state
+    setProfile({ ...profile, dob: date });
+  };
+
+  // useEffect(() => { fetchProfile(); }, []);
+  useEffect(() => {
+    if (currentUser) {
+      setProfile({
+        ...currentUser,
+        dob: currentUser.dob ? new Date(currentUser.dob).toISOString().split("T")[0] : '' // 格式化日期以匹配 HTML date 输入的要求
+      });
+    }
+  }, [currentUser]);
+
   return (
     <div className="wd-profile-screen">
       <h1>Profile</h1>
@@ -63,8 +81,11 @@ export default function Profile() {
 
           <div className="d-flex align-items-center mb-3">
             <label htmlFor="dob" className="form-label me-2" style={{ width: '10%' }}>Date of Birth</label>
-            <input className="wd-dob form-control mb-2" value={profile.dob}
-              onChange={(e) => setProfile({ ...profile, dob: e.target.value })} type="date" />
+            <input
+              className="wd-dob form-control mb-2"
+              value={profile.dob ? profile.dob.split("T")[0] : ''}
+              onChange={handleDateChange}
+              type="date" />
           </div>
 
           <div className="d-flex align-items-center mb-3">
@@ -76,6 +97,7 @@ export default function Profile() {
           <div className="d-flex align-items-center mb-3">
             <label htmlFor="role" className="form-label me-2" style={{ width: '10%' }}>Role</label>
             <select className="wd-role form-control mb-2"
+              value={profile.role}
               onChange={(e) => setProfile({ ...profile, role: e.target.value })}>
               <option value="USER">User</option>
               <option value="ADMIN">Admin</option>
@@ -83,10 +105,14 @@ export default function Profile() {
               <option value="STUDENT">Student</option>
             </select>
           </div>
-          <button onClick={updateProfile} className="wd-updateProfile-btn btn btn-primary mb-2 w-50"> Update Profile </button><br />
-          <button onClick={signout} className="wd-signout-btn btn btn-danger w-50">
-            Sign out
-          </button>
+          <div className="d-flex ">
+            <button onClick={updateProfile} className="wd-updateProfile-btn btn btn-primary me-2">
+              Update Profile
+            </button>
+            <button onClick={signout} className="wd-signout-btn btn btn-danger">
+              Sign Out
+            </button>
+          </div>
         </div>
       )}
     </div>

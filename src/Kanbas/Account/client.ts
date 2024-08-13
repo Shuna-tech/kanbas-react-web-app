@@ -27,10 +27,27 @@ export const profile = async () => {
   return response.data;
 };
 
+// export const updateProfile = async (user: any) => {
+//   const response = await axiosWithCredentials.put(`${USERS_API}/${user._id}`, user);
+//   console.log("update profile response: ", response)
+//   return response.data;
+// };
 export const updateProfile = async (user: any) => {
   const response = await axiosWithCredentials.put(`${USERS_API}/${user._id}`, user);
-  return response.data;
+  console.log("update profile response: ", response);
+
+  if (response.data.modifiedCount > 0) {
+    // Assuming the server sends back the updated user data
+    const updatedUserData = await axiosWithCredentials.get(`${USERS_API}/${user._id}`);
+    console.log("Fetched updated user data: ", updatedUserData.data);
+    return updatedUserData.data;
+  } else {
+    // Handle case where no data was updated
+    console.log("No changes were made to the user data");
+    return null;
+  }
 };
+
 
 export const signup = async (user: any) => {
   const response = await axiosWithCredentials.post(`${USERS_API}/signup`, user);

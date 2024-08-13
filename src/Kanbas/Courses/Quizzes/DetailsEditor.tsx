@@ -107,15 +107,51 @@ export default function DetailsEditor() {
   };
 
 
+  // const handleChange = (e: any) => {
+  //   const { name, value, type, checked } = e.target;
+  //   const updatedquiz = { ...quiz, [name]: type === 'checkbox' ? checked : value }
+  //   if (isNew) {
+  //     dispatch(updateDraftQuiz(updatedquiz))
+  //   } else {
+  //     dispatch(updateQuiz(updatedquiz));
+  //   }
+  // }
   const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
-    const updatedquiz = { ...quiz, [name]: type === 'checkbox' ? checked : value }
-    if (isNew) {
-      dispatch(updateDraftQuiz(updatedquiz))
+
+    let updatedQuiz = { ...quiz };
+
+    if (name === "isTimeLimited") {
+      if (checked) {
+        updatedQuiz[name] = true;
+        updatedQuiz['timeLimit'] = quiz.timeLimit || 20; // Use existing timeLimit or default to 20
+      } else {
+        updatedQuiz[name] = false;
+        updatedQuiz['timeLimit'] = 0; // Reset timeLimit when not time-limited
+      }
+    } else if (name === "timeLimit" && quiz.isTimeLimited) {
+      updatedQuiz[name] = Number(value);
+    } else if (name === "multipleAttempts") {
+      if (checked) {
+        updatedQuiz[name] = true;
+        updatedQuiz['howManyAttempts'] = quiz.howManyAttempts || 1; // Use existing attempts or default to 1
+      } else {
+        updatedQuiz[name] = false;
+        updatedQuiz['howManyAttempts'] = 1; // Reset to default when multiple attempts are not allowed
+      }
+    } else if (name === "howManyAttempts" && quiz.multipleAttempts) {
+      updatedQuiz[name] = Number(value);
     } else {
-      dispatch(updateQuiz(updatedquiz));
+      updatedQuiz[name] = type === 'checkbox' ? checked : value;
     }
-  }
+
+    if (isNew) {
+      dispatch(updateDraftQuiz(updatedQuiz));
+    } else {
+      dispatch(updateQuiz(updatedQuiz));
+    }
+  };
+
 
   const handleDescriptionChange = (value: any) => {
     const updatedquiz = { ...quiz, description: value };
@@ -294,20 +330,19 @@ export default function DetailsEditor() {
           </div>
           <div
             className="mt-3"
-            style={{ display: "flex", alignItems: "center" }}
-          >
+            style={{ display: "flex", alignItems: "center" }}>
             <input
               type="checkbox"
-              name="timeLimit"
-              checked={quiz.timeLimit}
+              name="isTimeLimited"
+              checked={quiz.isTimeLimited}
               onChange={handleChange}
             />{" "}
             Time Limit
-            {quiz.timeLimit && (
+            {quiz.isTimeLimited && (
               <>
                 <input
                   type="number"
-                  name="minutes"
+                  name="timeLimit"
                   value={quiz.timeLimit}
                   onChange={handleChange}
                   className="form-control ms-2"
@@ -317,7 +352,9 @@ export default function DetailsEditor() {
               </>
             )}
           </div>
-          <div className="mt-3">
+          <div
+            className="mt-3"
+            style={{ display: "flex", alignItems: "center" }} >
             <input
               type="checkbox"
               name="multipleAttempts"
@@ -325,6 +362,20 @@ export default function DetailsEditor() {
               onChange={handleChange}
             />{" "}
             Allow Multiple Attempts
+            {quiz.multipleAttempts && (
+              <>
+                <input
+                  type="number"
+                  id="howManyAttempts"
+                  name="howManyAttempts"
+                  value={quiz.howManyAttempts}
+                  onChange={handleChange}
+                  className="form-control ms-2"
+                  style={{ width: "100px" }}
+                />
+                <span className="ms-2">Attempts</span>
+              </>
+            )}
           </div>
           <br />
           <div className="row mb-5">
