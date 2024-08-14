@@ -197,22 +197,21 @@ export default function DetailsEditor() {
         resultData = await client.createQuiz(cid as string, quiz);
         console.log("result data: ", resultData)
         dispatch(addQuiz(resultData));
+        // update quiz to include new quiz id
+        quiz = { ...quiz, _id: resultData._id };
       } else {
         // Make the update call
         const response = await client.updateQuiz(quiz);
         console.log("Update response:", response);
         if (response === "") {
           console.log("Update successful, no content returned.");
-          console.log("quiz111: ", quiz)
           dispatch(updateQuiz(quiz));
         } else {
           dispatch(updateQuiz(response));
         }
       }
       //publish the quiz
-      console.log("resultData: ", resultData)
       await client.saveAndPublishQuiz(quiz._id);
-      console.log("quiz published: ", quiz);
       dispatch(updateQuiz({ ...quiz, published: true }));
       dispatch(clearDraftQuiz());
       navigate(`/Kanbas/Courses/${cid}/Quizzes`);
