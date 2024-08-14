@@ -11,59 +11,104 @@ export default function QuestionEditor() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isNew = qid === 'new';
+
   const quiz = useSelector((state: any) => {
-    console.log("Current quizzes state in editor:", state.quizzes.quizzes);
+    console.log("initialQuiz:", state.quizzes.quizzes);
     return isNew ? state.quizzes.draftQuiz : state.quizzes.quizzes.find((quiz: any) => quiz._id === qid);
   });
   console.log("quiz: ", quiz)
-  // use global state
-  console.log("questionID: ", questionId)
-  const question = quiz.questions.find((q: any) => q.questionId === Number(questionId)); //to convert into number
-  console.log("question: ", question)
-  const questionTitle = question?.questionTitle || '';
-  console.log("title:", questionTitle)
-  const questionType = question?.questionType || 'Multiple Choice';
-  const questionPoints = question?.points || 0;
-  const questionDescription = question?.question || '';
-  const questionChoices = question?.choices?.length > 0 ? question.choices : [
-    { id: Date.now(), text: "", correct: false }
-  ];
 
+  const question = quiz.questions.find((q: any) => q.questionId === Number(questionId));
+
+  const [localQuestionData, setLocalQuestionData] = useState(question);
+
+  // 使用 useState 创建局部状态 quiz
+  // const [quiz, setQuiz] = useState(initialQuiz);
+
+  // useEffect(() => {
+  //   // 更新局部状态 quiz，当 initialQuiz 改变时
+  //   setQuiz(initialQuiz);
+  // }, [initialQuiz]);
+
+  // console.log("questionID: ", questionId)
+  // const question = quiz.questions.find((q: any) => q.questionId === Number(questionId));
+  // console.log("question: ", question)
+  // const questionTitle = question?.questionTitle || '';
+  // console.log("title:", questionTitle)
+  // const questionType = question?.questionType || 'Multiple Choice';
+  // const questionPoints = question?.points || 0;
+  // const questionDescription = question?.question || '';
+  // const questionChoices = question?.choices?.length > 0 ? question.choices : [
+  //   { id: Date.now(), text: "", correct: false }
+  // ];
+  // const [questionTitle, setQuestionTitle] = useState(question?.questionTitle || '');
+  // const [questionType, setQuestionType] = useState(question?.questionType || 'Multiple Choice');
+  // const [questionPoints, setQuestionPoints] = useState(question?.points || 0);
+  // const [questionDescription, setQuestionDescription] = useState(question?.question || '');
+  // const [questionChoices, setQuestionChoices] = useState(question?.choices?.length > 0 ? question.choices : [
+  //   { id: Date.now(), text: "", correct: false }
+  // ]);
   const updateQuestion = () => {
     const updatedQuestions = quiz.questions.map((q: any) => {
-      if (q.questionId === questionId) {
-        return {
-          ...q,
-          questionTitle: questionTitle,
-          questionType: questionType,
-          points: questionPoints,
-          question: questionDescription,
-          choices: questionChoices
-        };
+      if (q.questionId === Number(questionId)) {
+        return { ...q, ...localQuestionData };
       }
       return q;
     });
+
     const updateData = {
       ...quiz,
       questions: updatedQuestions
     };
+
     if (isNew) {
       dispatch(updateDraftQuiz(updateData));
     } else {
       dispatch(updateQuiz(updateData));
     }
+
     navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}`, { state: { activeTab: 'questions' } });
   };
 
+  // const updateQuestion = () => {
+  //   const updatedQuestions = quiz.questions.map((q: any) => {
+  //     if (q.questionId === questionId) {
+  //       return {
+  //         ...q,
+  //         questionTitle: questionTitle,
+  //         questionType: questionType,
+  //         points: questionPoints,
+  //         question: questionDescription,
+  //         choices: questionChoices
+  //       };
+  //     }
+  //     return q;
+  //   });
+  //   const updateData = {
+  //     ...quiz,
+  //     questions: updatedQuestions
+  //   };
+  //   if (isNew) {
+  //     dispatch(updateDraftQuiz(updateData));
+  //   } else {
+  //     dispatch(updateQuiz(updateData));
+  //   }
+  //   navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}`, { state: { activeTab: 'questions' } });
+  // };
+
   const handleCancel = () => {
-    // dispatch(clearDraftQuiz());
+    // if (isNew) {
+    //   dispatch(clearDraftQuiz());
+    // } else {
+    //   dispatch(updateQuiz(quiz)); // 恢复 quiz 的原始状态，丢弃更改
+    // }
     navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}`, { state: { activeTab: 'questions' } });
   };
 
   return (
     <div className="question-form-container" style={{ padding: "20px", maxWidth: "600px", border: '1px solid #ccc', marginLeft: "200px", marginTop: "20px" }}>
       <div>
-        <RichTextEditor />
+        <RichTextEditor question={localQuestionData} onSave={setLocalQuestionData} />
         <MultipleChoiceEditor />
       </div>
 

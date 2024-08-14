@@ -7,15 +7,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateQuiz, updateDraftQuiz } from './reducer';
 import { useParams } from 'react-router';
 
-export default function RichTextEditor() {
+export default function RichTextEditor({ question, onSave }: any) {
   const { qid, questionId } = useParams();
-  const isNew = qid === 'new';
-  const dispatch = useDispatch();
-  const quiz = useSelector((state: any) => {
-    return isNew ? state.quizzes.draftQuiz : state.quizzes.quizzes.find((quiz: any) => quiz._id === qid);
-  });
+  // const isNew = qid === 'new';
+  // const dispatch = useDispatch();
+  // const quiz = useSelector((state: any) => {
+  //   return isNew ? state.quizzes.draftQuiz : state.quizzes.quizzes.find((quiz: any) => quiz._id === qid);
+  // });
 
-  const question = quiz.questions.find((q: any) => q.questionId === Number(questionId));
+  // const question = quiz.questions.find((q: any) => q.questionId === Number(questionId));
 
   // Helper function to create editor state from HTML
   const createEditorStateFromHTML = (html: any) => {
@@ -36,47 +36,51 @@ export default function RichTextEditor() {
   const [type, setType] = useState(question?.questionType || 'Multiple Choice');
   const [points, setPoints] = useState(question?.points || 0);
 
-  console.log("isNew value:", isNew);
-  console.log("qid from params:", qid);
-  console.log("questionId from params:", questionId);
-
-  const updateQuestionsAndDispatch = () => {
-    const textContent = editorState.getCurrentContent().getPlainText();
-    const updatedQuestions = quiz.questions.map((q: any) =>
-      q.questionId === Number(questionId) ? {
-        ...q,
-        questionTitle: title,
-        questionType: type,
-        points: points,
-        question: textContent
-      } : q
-    );
-
-    const updatedQuiz = {
-      ...quiz,
-      questions: updatedQuestions
-    };
-
-    if (isNew) {
-      dispatch(updateDraftQuiz(updatedQuiz));
-    } else {
-      dispatch(updateQuiz(updatedQuiz));
-    }
-  };
-
-  // When changes occur, update the global state
-  useEffect(() => {
-    updateQuestionsAndDispatch();
-  }, [title, type, points, editorState]);
-
   const handleEditorChange = (state: any) => {
     setEditorState(state);
-    updateQuestionsAndDispatch(); // Update on every editor state change
+    // updateQuestionsAndDispatch(); // Update on every editor state change
   };
-
   const handleTitleChange = (e: any) => setTitle(e.target.value);
   const handleTypeChange = (e: any) => setType(e.target.value);
   const handlePointsChange = (e: any) => setPoints(Number(e.target.value));
+
+  // Save the current state when onSave is called
+  useEffect(() => {
+    if (onSave) {
+      const textContent = editorState.getCurrentContent().getPlainText();
+      onSave({
+        questionTitle: title,
+        questionType: type,
+        points: points,
+        question: textContent,
+      });
+    }
+  }, [onSave, editorState, title, type, points]);
+
+
+  // const updateQuestionsAndDispatch = () => {
+  //   const textContent = editorState.getCurrentContent().getPlainText();
+  //   const updatedQuestions = quiz.questions.map((q: any) =>
+  //     q.questionId === Number(questionId) ? {
+  //       ...q,
+  //       questionTitle: title,
+  //       questionType: type,
+  //       points: points,
+  //       question: textContent
+  //     } : q
+  //   );
+
+  //   const updatedQuiz = {
+  //     ...quiz,
+  //     questions: updatedQuestions
+  //   };
+
+  //   if (isNew) {
+  //     dispatch(updateDraftQuiz(updatedQuiz));
+  //   } else {
+  //     dispatch(updateQuiz(updatedQuiz));
+  //   }
+  // };
 
   return (
     <div>

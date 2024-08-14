@@ -177,7 +177,7 @@ export default function DetailsEditor() {
         resultData = await client.updateQuiz(quizWithUpdatedPoints);
         dispatch(updateQuiz(resultData));
       }
-      dispatch(clearDraftQuiz()); //save quiz之后要把draftquiz的状态清空
+      dispatch(clearDraftQuiz());
       navigate(`/Kanbas/Courses/${cid}/Quizzes`);
     } catch (error) {
       console.error("Error saving quizzes:", error);
@@ -185,7 +185,7 @@ export default function DetailsEditor() {
   };
 
   const handleCancel = () => {
-    dispatch(clearDraftQuiz());
+    // dispatch(clearDraftQuiz());
     navigate(`/Kanbas/Courses/${cid}/Quizzes`);
   };
 
@@ -222,7 +222,7 @@ export default function DetailsEditor() {
   }
 
   useEffect(() => {
-    if (quiz && quiz.questions && !isNew) {
+    if (quiz && quiz.questions) {
       const sum = quiz.questions.reduce((acc: any, curr: any) => acc + (curr.points || 0), 0);
       setTotalPoints(sum);
     }
@@ -477,6 +477,10 @@ export default function DetailsEditor() {
           <br />
         </div>
       )}
+
+
+
+
 
       {activeTab === 'questions' && (
         <div>
