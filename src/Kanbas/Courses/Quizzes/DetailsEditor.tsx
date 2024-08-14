@@ -232,7 +232,7 @@ export default function DetailsEditor() {
     <div id="wd-quiz-editor" className="ms-5">
       <div className="float-end">
         <span style={{ marginRight: "8px" }}>Points</span>
-        <span style={{ marginRight: "10px" }}>{quiz.totalPoints}</span>
+        <span style={{ marginRight: "10px" }}>{totalPoints}</span>
         <span style={{ marginRight: "8px", color: "grey" }}>
           <span
             style={{
@@ -496,12 +496,17 @@ export default function DetailsEditor() {
                   style={{ marginRight: '10px' }}
                   value={question.questionTitle}
                   onChange={(e) => handleQuestionChange(e, question.questionId)} />
-                <input
+                <select
                   name="questionType"
                   style={{ marginRight: '10px' }}
-                  value={question.questionType}
-                  className='form-control'
-                  onChange={(e) => handleQuestionChange(e, question.questionId)} />
+                  value={question.questionType || 'Multiple Choice'}
+                  className='form-select'
+                  onChange={(e) => handleQuestionChange(e, question.questionId)}
+                >
+                  <option value="Multiple Choice">Multiple Choice</option>
+                  <option value="True/False">True/False</option>
+                  <option value="Fill in Multiple Blanks">Fill in Multiple Blanks</option>
+                </select>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', marginLeft: '30px' }}>
                 <FaEdit className='fs-5 me-3' onClick={() => handleEditQuestion(question.questionId)} />

@@ -8,8 +8,6 @@ import { updateQuiz, updateDraftQuiz } from './reducer';
 import { useParams } from 'react-router';
 
 export default function RichTextEditor({ question, onSave }: any) {
-  const { qid, questionId } = useParams();
-
   // Helper function to create editor state from HTML
   const createEditorStateFromHTML = (html: any) => {
     const blocksFromHTML = convertFromHTML(html);
