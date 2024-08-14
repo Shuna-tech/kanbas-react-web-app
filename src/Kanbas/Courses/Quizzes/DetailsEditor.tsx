@@ -478,10 +478,6 @@ export default function DetailsEditor() {
         </div>
       )}
 
-
-
-
-
       {activeTab === 'questions' && (
         <div>
           <div className="float-end">
