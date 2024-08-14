@@ -100,9 +100,9 @@ export default function Quizzes() {
   };
 
   //Filter quizzes based on user role(only published quizzes for students)
-  const filteredQuizzes = currentUser.role === "STUDENT" 
-  ? quizzes.filter((quiz: any) => quiz.published)
-  : quizzes;
+  const filteredQuizzes = currentUser.role === "STUDENT"
+    ? quizzes.filter((quiz: any) => quiz.published)
+    : quizzes;
 
   useEffect(() => {
     fetchQuizzes();
@@ -112,7 +112,7 @@ export default function Quizzes() {
 
   return (
     <div id="wd-quizzes" className="ms-5">
-       {currentUser.role === "FACULTY" && <QuizzesControls />}
+      {currentUser.role === "FACULTY" && <QuizzesControls />}
       <br />
       <br />
       <ul id="wd-quizzes" className="list-group rounded-0">

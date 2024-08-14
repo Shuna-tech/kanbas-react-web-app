@@ -28,13 +28,31 @@ export default function DetailsEditor() {
     return isNew ? state.quizzes.draftQuiz : state.quizzes.quizzes.find((quiz: any) => quiz._id === qid);
   });
 
-  const formatDate = (dateString: Date) => {
+  // const formatDate = (dateString: Date) => {
+  //   if (!dateString) {
+  //     return '';
+  //   }
+  //   try {
+  //     const date = new Date(dateString);
+  //     return date.toISOString().split('T')[0];
+  //   } catch (e) {
+  //     console.error('Invalid date', e);
+  //     return '';
+  //   }
+  // };
+
+  const formatDate = (dateString: Date | string) => {
     if (!dateString) {
       return '';
     }
     try {
       const date = new Date(dateString);
-      return date.toISOString().split('T')[0];
+
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+
+      return `${year}-${month}-${day}`;
     } catch (e) {
       console.error('Invalid date', e);
       return '';
@@ -112,20 +130,20 @@ export default function DetailsEditor() {
     if (name === "isTimeLimited") {
       if (checked) {
         updatedQuiz[name] = true;
-        updatedQuiz['timeLimit'] = quiz.timeLimit || 20; // Use existing timeLimit or default to 20
+        updatedQuiz['timeLimit'] = quiz.timeLimit || 20;
       } else {
         updatedQuiz[name] = false;
-        updatedQuiz['timeLimit'] = 0; // Reset timeLimit when not time-limited
+        updatedQuiz['timeLimit'] = 0;
       }
     } else if (name === "timeLimit" && quiz.isTimeLimited) {
       updatedQuiz[name] = Number(value);
     } else if (name === "multipleAttempts") {
       if (checked) {
         updatedQuiz[name] = true;
-        updatedQuiz['howManyAttempts'] = quiz.howManyAttempts || 1; // Use existing attempts or default to 1
+        updatedQuiz['howManyAttempts'] = quiz.howManyAttempts || 1;
       } else {
         updatedQuiz[name] = false;
-        updatedQuiz['howManyAttempts'] = 1; // Reset to default when multiple attempts are not allowed
+        updatedQuiz['howManyAttempts'] = 1;
       }
     } else if (name === "howManyAttempts" && quiz.multipleAttempts) {
       updatedQuiz[name] = Number(value);
@@ -139,7 +157,6 @@ export default function DetailsEditor() {
       dispatch(updateQuiz(updatedQuiz));
     }
   };
-
 
   const handleDescriptionChange = (value: any) => {
     const updatedquiz = { ...quiz, description: value };
@@ -378,6 +395,57 @@ export default function DetailsEditor() {
                 <span className="ms-2">Attempts</span>
               </>
             )}
+          </div>
+          <div className="mt-3" style={{ display: "flex", alignItems: "center" }}>
+            <input
+              type="checkbox"
+              name="showCorrectAnswers"
+              checked={quiz.showCorrectAnswers}
+              onChange={handleChange}
+            />{" "}
+            Show Correct Answers
+          </div>
+          <div className="mt-3" style={{ display: "flex", alignItems: "center" }}>
+            <label htmlFor="accessCode" className="form-label me-2">
+              Access Code
+            </label>
+            <input
+              type="text"
+              id="accessCode"
+              name="accessCode"
+              value={quiz.accessCode || ""}
+              onChange={handleChange}
+              className="form-control"
+              placeholder="Enter access code"
+              style={{ width: "200px" }}
+            />
+          </div>
+          <div className="mt-3" style={{ display: "flex", alignItems: "center" }}>
+            <input
+              type="checkbox"
+              name="oneQuestionAtATime"
+              checked={quiz.oneQuestionAtATime}
+              onChange={handleChange}
+            />{" "}
+            One Question at a Time
+          </div>
+          <div className="mt-3" style={{ display: "flex", alignItems: "center" }}>
+            <input
+              type="checkbox"
+              name="webcamRequired"
+              checked={quiz.webcamRequired}
+              onChange={handleChange}
+            />{" "}
+            Webcam Required
+          </div>
+          <div className="mt-3" style={{ display: "flex", alignItems: "center" }}>
+            <input
+              type="checkbox"
+              name="lockQuestions"
+              checked={quiz.lockQuestions}
+              onChange={handleChange}
+            />{" "}
+            Lock Questions After Answering
           </div>
           <br />
           <div className="row mb-5">
