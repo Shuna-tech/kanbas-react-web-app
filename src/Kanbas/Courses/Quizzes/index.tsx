@@ -11,9 +11,7 @@ import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { setQuizzes, deleteQuiz, updateQuiz } from "./reducer";
 import * as client from "./client";
-// TODO: Add quiz list and quiz details screen
-// Can refer to Assignments/index.tsx
-//
+
 export default function Quizzes() {
   const quizzes = useSelector((state: any) => state.quizzes.quizzes);
   const currentUser = useSelector((state: any) => state.account.currentUser); // Get current user
@@ -22,7 +20,7 @@ export default function Quizzes() {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [currentQuizId, setCurrentQuizId] = useState(null);
-  const [quizResults, setQuizResults] = useState<any>({}); // State to store quiz results
+  const [quizResults, setQuizResults] = useState<any>({});
 
   const formatDate = (isoString: string) => {
     const date = new Date(isoString);
