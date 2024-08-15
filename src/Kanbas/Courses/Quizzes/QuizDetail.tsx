@@ -205,7 +205,7 @@ export default function QuizDetail() {
           <dt className="col-sm-3 text-right" style={{ textAlign: "right" }}>
             Show Correct Answers
           </dt>
-          <dd className="col-sm-9">{quiz.showCorrectAnswers}</dd>
+          <dd className="col-sm-9">{quiz.showCorrectAnswers ? "Yes" : "No"}</dd>
 
           <dt className="col-sm-3 text-right" style={{ textAlign: "right" }}>
             Access Code
