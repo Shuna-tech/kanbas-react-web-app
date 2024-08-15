@@ -28,36 +28,25 @@ export default function DetailsEditor() {
     return isNew ? state.quizzes.draftQuiz : state.quizzes.quizzes.find((quiz: any) => quiz._id === qid);
   });
 
-  // const formatDate = (dateString: Date) => {
-  //   if (!dateString) {
-  //     return '';
-  //   }
-  //   try {
-  //     const date = new Date(dateString);
-  //     return date.toISOString().split('T')[0];
-  //   } catch (e) {
-  //     console.error('Invalid date', e);
-  //     return '';
-  //   }
-  // };
-
-  const formatDate = (dateString: Date | string) => {
+  const formatDate = (dateString: string | Date) => {
     if (!dateString) {
       return '';
     }
     try {
       const date = new Date(dateString);
-
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
 
-      return `${year}-${month}-${day}`;
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
     } catch (e) {
       console.error('Invalid date', e);
       return '';
     }
   };
+
 
   useEffect(() => {
     if (location.state?.activeTab) {
@@ -202,7 +191,7 @@ export default function DetailsEditor() {
   };
 
   const handleCancel = () => {
-    // dispatch(clearDraftQuiz());
+    dispatch(clearDraftQuiz());
     navigate(`/Kanbas/Courses/${cid}/Quizzes`);
   };
 
@@ -342,7 +331,7 @@ export default function DetailsEditor() {
             <input
               type="checkbox"
               name="shuffleAnswers"
-              checked={quiz.shuffleAnswers}
+              checked={quiz.shuffleAnswers ?? true}
               onChange={handleChange}
             />{" "}
             Shuffle Answers
@@ -353,16 +342,16 @@ export default function DetailsEditor() {
             <input
               type="checkbox"
               name="isTimeLimited"
-              checked={quiz.isTimeLimited}
+              checked={quiz.isTimeLimited ?? true}
               onChange={handleChange}
             />{" "}
             Time Limit
-            {quiz.isTimeLimited && (
+            {(quiz.isTimeLimited ?? true) && (
               <>
                 <input
                   type="number"
                   name="timeLimit"
-                  value={quiz.timeLimit}
+                  value={quiz.timeLimit ?? 20}
                   onChange={handleChange}
                   className="form-control ms-2"
                   style={{ width: "100px" }}
@@ -424,7 +413,7 @@ export default function DetailsEditor() {
             <input
               type="checkbox"
               name="oneQuestionAtATime"
-              checked={quiz.oneQuestionAtATime}
+              checked={quiz.oneQuestionAtATime ?? true}
               onChange={handleChange}
             />{" "}
             One Question at a Time
@@ -473,7 +462,7 @@ export default function DetailsEditor() {
                     <div className="input-group">
                       <input
                         id="wd-due-date"
-                        type="date"
+                        type="datetime-local"
                         className="form-control"
                         value={formatDate(quiz.dueDate)}
                         onChange={handleChange}
@@ -492,7 +481,7 @@ export default function DetailsEditor() {
                       <div className="input-group">
                         <input
                           id="wd-available-from"
-                          type="date"
+                          type="datetime-local"
                           className="form-control"
                           value={formatDate(quiz.availableDate)}
                           onChange={handleChange}
@@ -510,7 +499,7 @@ export default function DetailsEditor() {
                       <div className="input-group">
                         <input
                           id="wd-available-until"
-                          type="date"
+                          type="datetime-local"
                           className="form-control"
                           value={formatDate(quiz.availableUntilDate)}
                           onChange={handleChange}
